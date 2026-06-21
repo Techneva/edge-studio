@@ -42,11 +42,22 @@ def _tau(hg, ag, lam, mu, rho):
 
 
 class Predictor:
-    def __init__(self, atk, dfn, ha, idx, strong, rho, mode, pool, group_mean=None):
+    def __init__(self, atk, dfn, ha, idx, strong, rho, mode, pool, group_mean=None, napp=None):
         self.atk, self.dfn, self.ha = atk, dfn, ha
         self.idx, self.strong = idx, strong
         self.rho, self.mode, self.pool = rho, mode, pool
         self.group_mean = group_mean or {}
+        self.napp = napp        # effective (time-weighted) appearances per team, indexed by idx
+
+    def xg_logse(self, home, away, k_se):
+        """Approx 1-sigma uncertainty of log(xg) for this fixture from team sample sizes.
+        Var(log xg) ~ 1/G_home + 1/G_away (Fisher info of a log-rate). k_se absorbs the
+        constant + model-misspecification scale (calibrated out-of-sample)."""
+        import numpy as _np
+        def g(t):
+            i = self.idx.get(t, self.idx.get('Other'))
+            return max(self.napp[i], 1.0) if (self.napp is not None and i is not None) else 8.0
+        return float(k_se * _np.sqrt(1.0/g(home) + 1.0/g(away)))
 
     def known(self, team):
         return team in self.idx and team in self.strong
@@ -154,4 +165,4 @@ def fit(RAW, cutoff, half_life=547, min_matches=10, rho=-0.08,
     res = minimize(nll, x0, jac=True, method="L-BFGS-B", bounds=bounds,
                    options={"maxiter": maxiter})
     atk, dfn, ha, r = unpack(res.x)
-    return Predictor(atk, dfn, ha, idx, strong, r, mode, pool), res.success, len(df)
+    return Predictor(atk, dfn, ha, idx, strong, r, mode, pool, napp=napp), res.success, len(df)

@@ -28,6 +28,7 @@ print(f"fit ok={ok} home_adv={ha:.3f} rho={RHO} teams={len(pred.idx)} train={ntr
 # toward the global mean while leaving supremacy untouched). O/U log-loss 0.677->0.667.
 CAL_ST = 0.65          # keep 65% of the total's deviation from the mean
 CAL_TBAR = 2.68        # global mean international total goals
+K_SE = 0.7             # xG-uncertainty scale (calibrated out-of-sample; neutral on log-loss, not over-inflated)
 
 def xg(home, away, neutral):
     lam, mu = pred.xg(home, away, neutral)
@@ -39,7 +40,7 @@ def xg(home, away, neutral):
 # remaining WC group fixtures (unplayed)
 wc = RAW.copy(); wc["date"] = pd.to_datetime(wc["date"])
 wc = wc[wc.tournament.str.contains("World Cup", case=False, na=False)]
-rem = wc[(wc.home_score.isna()) & (wc.date >= pd.Timestamp("2026-06-11")) & (wc.date <= pd.Timestamp("2026-06-28"))].sort_values(["date", "home_team"])  # all remaining group fixtures, independent of clock
+rem = wc[(wc.home_score.isna()) & (wc.date >= pd.Timestamp("2026-06-11")) & (wc.date <= pd.Timestamp("2026-06-28"))].sort_values(["date", "home_team"])
 
 # odds store: persistent app_odds.json ("Home|Away" -> [home,draw,away] decimal),
 # refreshed by the daily scheduled task. Falls back to empty if absent.
@@ -64,9 +65,10 @@ for _, r in rem.iterrows():
         "date": r.date.strftime("%Y-%m-%d"), "home": r.home_team, "away": r.away_team,
         "neutral": neu, "venue": f"{r.get('city','')}, {r.get('country','')}".strip(", "),
         "home_xg": lam, "away_xg": mu,
-        "odds": ODDS_STORE.get(key),         # [home,draw,away] decimal or None
-        "cs_odds": CS_STORE.get(key, {}),    # {"h-a": decimal} correct-score prices
-        "mkt": MKT_STORE.get(key, {})        # {marketKey: decimal} all other markets
+        "xgse": round(pred.xg_logse(r.home_team, r.away_team, K_SE), 4),  # 1-sigma log-xG uncertainty
+        "odds": ODDS_STORE.get(key),
+        "cs_odds": CS_STORE.get(key, {}),
+        "mkt": MKT_STORE.get(key, {})
     })
 
 ratings = {t: {"atk": round(float(pred.atk[pred.idx[t]]), 4), "def": round(float(pred.dfn[pred.idx[t]]), 4)}

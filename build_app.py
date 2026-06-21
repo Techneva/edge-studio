@@ -85,6 +85,7 @@ summary.dayhdr:hover{background:#f8fafd}
 .betpick .bs{color:var(--muted);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .betpick .bev{font-weight:700;color:var(--green);white-space:nowrap;min-width:50px;text-align:right}
 .betpick .bev.neg{color:var(--red)} .betpick .bev.muted{color:var(--muted);font-weight:500}
+.betpick .bcf{font-size:9.5px;font-weight:700;color:var(--muted);white-space:nowrap;margin-left:5px}
 .recnote{font-size:11px;color:var(--muted);margin-top:6px}
 .slip{width:100%;border-top:1px solid var(--line);margin-top:10px;padding-top:9px}
 .slipline{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:4px 0;border-bottom:1px solid #f0f2f7}
@@ -158,7 +159,7 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
         <ol>
           <li><b>Pick games</b> on the left (or <b>All</b>). Each card shows the model's read for that match.</li>
           <li><b>Probabilities are market-anchored:</b> the model is blended toward the bookmaker's de-vigged odds. The <b>Model trust</b> slider sets how far it may stray — <b>0</b> = follow the market, <b>1</b> = pure model. Lower = safer.</li>
-          <li><b>Recommended bet</b> = goal-shape markets (totals, handicap, BTTS) where the model — <i>after being shaded toward the market</i> (your Stake-caution weight) — still beats the price by at least your <b>Edge threshold</b>. The 1X2 result line is <i>not</i> flagged as value: the market prices the result more accurately than the model's supremacy, so model-vs-market result disagreements (especially draws) are filtered out. Often there's <b>no value bet</b> — that's normal and honest.</li>
+          <li><b>Recommended bet</b> = goal-shape markets (totals, handicap, BTTS) where the model — <i>after being shaded toward the market</i> (your Stake-caution weight) — still beats the price by at least your <b>Edge threshold</b>. The 1X2 result line is <i>not</i> flagged as value: the market prices the result more accurately than the model's supremacy, so model-vs-market result disagreements (especially draws) are filtered out. Each candidate also passes an <b>edge-confidence check</b> — flagged only if we're &ge;70% sure the edge is positive once xG estimation error is accounted for (the <b>% conf</b> chip) — picks are ranked by <b>risk-adjusted edge</b> (edge &divide; its uncertainty), and stakes are sized off a conservative lower bound so shakier edges bet smaller. Often there's <b>no value bet</b> — that's normal and honest.</li>
           <li><b>Insurance</b> = the favourite via double chance: lower payout, much lower risk.</li>
           <li><b>Enter book odds</b> in any market row (decimal) to get its fair price, <b>EV%</b> and a stake. Only the 1X2 comes pre-filled; type the others (handicap, totals, BTTS) to evaluate them.</li>
           <li><b>Controls:</b> Bankroll scales stakes · Kelly fraction sets aggressiveness · <b>Stake caution</b> sizes bets off a probability shaded toward the market (0 = size at the market, safest; 1 = size at your full model) so a model-only edge can't over-bet the bankroll · Bet mode toggles "favourite + insurance" vs "value bets only".</li>
@@ -190,6 +191,17 @@ function devig(o){let raw=o.map(x=>1/x);const fg=c=>raw.map(r=>r/(c+r-c*r));let 
 function ah(m,side,line){let win=0,push=0,loss=0,MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++){let p=m[h][a];let d=(side==="home"?h-a:a-h)+line;if(d>1e-9)win+=p;else if(Math.abs(d)<1e-9)push+=p;else loss+=p;}return{win,push,loss};}
 function ou(m,line){let over=0,MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++)if(h+a>line)over+=m[h][a];return over;}
 function kelly(p,o){let b=o-1;return Math.max(0,(b*p-(1-p))/b);}
+const CONF=0.70, ZK=0.5;   // edge-confidence gate; staking lower-bound z
+function gauss(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function erf(x){let s=x<0?-1:1;x=Math.abs(x);let t=1/(1+0.3275911*x);let y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+function normCdf(x){return 0.5*(1+erf(x/Math.SQRT2));}
+let pstdCache={};
+function pstdFor(f){let key=fkey(f);if(pstdCache[key])return pstdCache[key];
+  let se=f.xgse||0,K=60,rho=DATA.model.rho,sums={},sq={};
+  if(se>0){for(let s=0;s<K;s++){let l=Math.exp(Math.log(f.home_xg)+se*gauss()),m=Math.exp(Math.log(f.away_xg)+se*gauss());
+    let M=scoreMatrix(l,m,rho); marketRows(f,{M,P:probs(M),tgt:null}).forEach(r=>{if(r.sec||r.cs)return;let d=r.win+r.loss,rp=d>0?r.win/d:0;sums[r.key]=(sums[r.key]||0)+rp;sq[r.key]=(sq[r.key]||0)+rp*rp;});}}
+  let std={};for(let kk in sums){let mn=sums[kk]/K,v=Math.max(0,sq[kk]/K-mn*mn);std[kk]=Math.sqrt(v);}
+  pstdCache[key]=std;return std;}
 function calibrate(lam,mu,rho0,target,overT){let s=lam-mu,t=Math.max(lam+mu,.3),rho=rho0;
   for(let it=0;it<160;it++){let l=Math.max((t+s)/2,.04),mm=Math.max((t-s)/2,.04);let M=scoreMatrix(l,mm,rho),pr=probs(M);
     let eS=(pr.home-pr.away)-(target[0]-target[2]); s-=1.1*eS;
@@ -327,10 +339,14 @@ function gameBets(f){
   let favHome=P.home>=P.away;
   let bets=[];
   let cands=[];
-  rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;let evg=e.ps*e.od-1;if(evg>=thr)cands.push({r,od:e.od,ev:evg,evModel:e.ev,p:e.p,ps:e.ps});});
-  cands.sort((a,b)=>b.ev-a.ev);
-  cands.forEach((cd,i)=>{let stk=bank*kf*kelly(cd.ps,cd.od);
-    bets.push({id:`${k}|v|${cd.r.key}`,game:gl,date:f.date,label:cd.r.label,kind:'value',od:cd.od,p:cd.p,ev:cd.ev,stake:stk,primary:i===0,fairOnly:false});});
+  let pstd=pstdFor(f);
+  rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;
+    let evMean=e.ps*e.od-1, psStd=stakeW*(pstd[r.key]||0), edgeStd=psStd*e.od;
+    let pPos=edgeStd>1e-6?normCdf(evMean/edgeStd):(evMean>0?1:0), ir=edgeStd>1e-6?evMean/edgeStd:9;
+    if(evMean>=thr && pPos>=CONF) cands.push({r,od:e.od,ev:evMean,pPos,ir,p:e.p,psK:Math.max(0,e.ps-ZK*psStd)});});
+  cands.sort((a,b)=>b.ir-a.ir);
+  cands.forEach((cd,i)=>{let stk=bank*kf*kelly(cd.psK,cd.od);
+    bets.push({id:`${k}|v|${cd.r.key}`,game:gl,date:f.date,label:cd.r.label,kind:'value',od:cd.od,p:cd.p,ev:cd.ev,pPos:cd.pPos,ir:cd.ir,stake:stk,primary:i===0,fairOnly:false});});
   let dcKey=favHome?"DC1X":"DCX2", dcRow=rows.find(r=>r.key===dcKey), dcE=rowEval(f,dcRow);
   let dcHasOdds=dcE.od!=null, dcOd=dcHasOdds?dcE.od:dcE.fair;
   bets.push({id:`${k}|s|${dcKey}`,game:gl,date:f.date,label:dcRow.label,kind:'saver',od:dcOd,p:dcE.p,ev:dcHasOdds?(dcE.p*dcE.od-1):0,stake:8*unit,primary:false,fairOnly:!dcHasOdds});
@@ -343,7 +359,7 @@ function gameBets(f){
 function betRow(b){
   let ch=slip.has(b.id)?'checked':'';
   let price=b.fairOnly?`fair ${b.od.toFixed(2)}`:`@ ${b.od}`;
-  let ev=b.kind==='value'?`<span class="bev">+${(b.ev*100).toFixed(1)}%</span>`
+  let ev=b.kind==='value'?`<span class="bev" title="model edge after shading toward the market">+${(b.ev*100).toFixed(1)}%</span><span class="bcf" title="confidence the edge is real, P(edge>0), given xG estimation uncertainty">${b.pPos!=null?(b.pPos*100).toFixed(0)+'% conf':''}</span>`
         :(b.fairOnly?'<span class="bev muted">no book price</span>':`<span class="bev ${b.ev>=0?'':'neg'}">${b.ev>=0?'+':''}${(b.ev*100).toFixed(1)}%</span>`);
   return `<label class="betpick${b.primary?' prim':''}"><input type="checkbox" class="betchk" data-id="${b.id}" ${ch}>`+
     `<span class="bl">${b.label}</span><span class="bo">${price}</span>`+
@@ -393,7 +409,7 @@ function render(){
     : `<div class="empty">Pick fixtures on the left.<br>Probabilities are market-anchored; enter book odds on any market to get edge and a stake.</div>`;
   // ----- bet slip tally -----
   const {thr}=getParams();
-  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;if(e.ps*e.od-1>=thr)nEdge++;});});
+  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c),pstd=pstdFor(f);rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;let evM=e.ps*e.od-1,es=stakeW*(pstd[r.key]||0)*e.od,pp=es>1e-6?normCdf(evM/es):(evM>0?1:0);if(evM>=thr&&pp>=CONF)nEdge++;});});
   let items=[],sStake=0,sEV=0,sPot=0,anyExcl=false;
   sel.forEach(f=>{
     let bets=gameBets(f).filter(b=>slip.has(b.id));
