@@ -20,6 +20,12 @@ render_test.js
 order_test.js
 cs_test.js
 
+# scratch / source assets (logo is embedded into the build, no need to ship raw files)
+_*.png
+_b64_*.txt
+ChatGPT Image*.png
+files.zip
+
 # project notes / non-web artifacts (not needed for the public site)
 world-cup-betting-conversation.md
 betting-ruleset-v2.md
