@@ -139,7 +139,9 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
       <div><label>Kelly fraction</label><input id="kfrac" type="number" value="0.25" step="0.05" min="0" max="1"></div>
       <div><label>Edge threshold %</label><input id="thresh" type="number" value="2" step="0.5"></div>
       <div><label>Model trust</label><input id="trust" type="number" value="1" step="0.05" min="0" max="1">
-        <div class="hint">0 = follow market · 1 = pure model</div></div>
+        <div class="hint">display: 0 = follow market · 1 = pure model</div></div>
+      <div><label>Stake caution</label><input id="stakew" type="number" value="0.5" step="0.05" min="0" max="1">
+        <div class="hint">stake size: 0 = size at market (safest) · 1 = size at full model</div></div>
       <div class="full"><label>Bet mode</label>
         <select id="mode"><option value="insured" selected>Favourite + insurance (low risk)</option>
         <option value="value">Value bets only (edge ≥ thr)</option></select></div>
@@ -156,10 +158,10 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
         <ol>
           <li><b>Pick games</b> on the left (or <b>All</b>). Each card shows the model's read for that match.</li>
           <li><b>Probabilities are market-anchored:</b> the model is blended toward the bookmaker's de-vigged odds. The <b>Model trust</b> slider sets how far it may stray — <b>0</b> = follow the market, <b>1</b> = pure model. Lower = safer.</li>
-          <li><b>Recommended bet</b> = the market(s) where the model's probability beats the price by at least your <b>Edge threshold</b> (with a quarter-Kelly stake). Often there's <b>no value bet</b> — that's normal and honest.</li>
+          <li><b>Recommended bet</b> = goal-shape markets (totals, handicap, BTTS) where the model — <i>after being shaded toward the market</i> (your Stake-caution weight) — still beats the price by at least your <b>Edge threshold</b>. The 1X2 result line is <i>not</i> flagged as value: the market prices the result more accurately than the model's supremacy, so model-vs-market result disagreements (especially draws) are filtered out. Often there's <b>no value bet</b> — that's normal and honest.</li>
           <li><b>Insurance</b> = the favourite via double chance: lower payout, much lower risk.</li>
           <li><b>Enter book odds</b> in any market row (decimal) to get its fair price, <b>EV%</b> and a stake. Only the 1X2 comes pre-filled; type the others (handicap, totals, BTTS) to evaluate them.</li>
-          <li><b>Controls:</b> Bankroll scales stakes · Kelly fraction sets aggressiveness (value mode) · Bet mode toggles "favourite + insurance" vs "value bets only".</li>
+          <li><b>Controls:</b> Bankroll scales stakes · Kelly fraction sets aggressiveness · <b>Stake caution</b> sizes bets off a probability shaded toward the market (0 = size at the market, safest; 1 = size at your full model) so a model-only edge can't over-bet the bankroll · Bet mode toggles "favourite + insurance" vs "value bets only".</li>
         </ol>
         <div class="gwarn">The bookmaker margin is in every price — this manages process and variance, it does <b>not</b> manufacture an edge. Probability/strategy tool, <b>not</b> betting advice.</div>
       </div>
@@ -200,14 +202,14 @@ function calibrate(lam,mu,rho0,target,overT){let s=lam-mu,t=Math.max(lam+mu,.3),
   return[Math.max((t+s)/2,.04),Math.max((t-s)/2,.04),rho];}
 
 /* ---------- state ---------- */
-let selected=new Set(), mOdds={}, trust=1, slip=new Set(), slipSeen=new Set();
+let selected=new Set(), mOdds={}, trust=1, stakeW=0.5, slip=new Set(), slipSeen=new Set();
 const LS="edgestudio_v2";
 try{let s=JSON.parse((typeof localStorage!=="undefined"&&localStorage.getItem(LS))||"{}");
  if(s.selected)selected=new Set(s.selected); if(s.mOdds)mOdds=s.mOdds; if(s.trust!=null)trust=s.trust;
- if(s.slip)slip=new Set(s.slip); if(s.slipSeen)slipSeen=new Set(s.slipSeen);}catch(e){}
+ if(s.slip)slip=new Set(s.slip); if(s.slipSeen)slipSeen=new Set(s.slipSeen); if(s.stakeW!=null)stakeW=s.stakeW;}catch(e){}
 function fkey(f){return f.date+"|"+f.home+"|"+f.away;}
 function getParams(){let bank=parseFloat($("#bankroll").value)||100;return {bank,kf:parseFloat($("#kfrac").value)||0,thr:parseFloat($("#thresh").value)/100,mode:$("#mode").value,unit:bank/1000};}
-function save(){try{localStorage.setItem(LS,JSON.stringify({selected:[...selected],mOdds,trust,slip:[...slip],slipSeen:[...slipSeen]}));}catch(e){}}
+function save(){try{localStorage.setItem(LS,JSON.stringify({selected:[...selected],mOdds,trust,stakeW,slip:[...slip],slipSeen:[...slipSeen]}));}catch(e){}}
 function num(v){let x=parseFloat(v);return isNaN(x)?null:x;}
 
 /* ---------- per-game calibration + markets ---------- */
@@ -270,15 +272,23 @@ function rowOddsKey(f,key){let k=fkey(f),o=mOdds[k]||{},mk=f.mkt||{};return o[ke
 // 1X2 rows are already anchored via the blended target, so they pass through unchanged.
 function rowEval(f,r){
   let modelP=rowP(r), od=rowOdds(f,r), is1x2=(r.key==="H"||r.key==="D"||r.key==="A");
-  let dispP=modelP, fair=rowFair(r), ev=(od!=null)?(r.win*od-(r.win+r.loss)):null;
+  let dispP=modelP, fair=rowFair(r), ev=(od!=null)?(r.win*od-(r.win+r.loss)):null, mfair=null;
+  if(od!=null && is1x2){
+    let o=get1x2(f); if(o){let dv=devig(o); mfair=r.key==="H"?dv[0]:r.key==="D"?dv[1]:dv[2];}
+  }
   if(od!=null && !is1x2){
     let comp=COMP[r.key], oc=comp?rowOddsKey(f,comp):null, mf;
     if(oc){let a=1/od,b=1/oc; mf=a/(a+b);}            // de-vig the pair when both sides known
     else mf=(1/od)/1.045;                              // single price: light margin haircut
     mf=Math.max(0.004,Math.min(0.996,mf));
+    mfair=mf;
     dispP=trust*modelP+(1-trust)*mf; fair=1/dispP; ev=dispP*od-1;
   }
-  return {p:dispP, fair, od, ev};
+  // staking probability: always shade the model toward the de-vigged market by (1-stakeW),
+  // independent of the display-trust slider — protects the bankroll from model error.
+  let ps=dispP;
+  if(mfair!=null) ps=stakeW*modelP+(1-stakeW)*mfair;
+  return {p:dispP, fair, od, ev, ps};
 }
 
 /* ---------- fixtures list ---------- */
@@ -317,9 +327,9 @@ function gameBets(f){
   let favHome=P.home>=P.away;
   let bets=[];
   let cands=[];
-  rows.forEach(r=>{if(r.sec||r.cs)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)cands.push({r,od:e.od,ev:e.ev,p:e.p});});
+  rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;let evg=e.ps*e.od-1;if(evg>=thr)cands.push({r,od:e.od,ev:evg,evModel:e.ev,p:e.p,ps:e.ps});});
   cands.sort((a,b)=>b.ev-a.ev);
-  cands.forEach((cd,i)=>{let stk=bank*kf*kelly(cd.p,cd.od);
+  cands.forEach((cd,i)=>{let stk=bank*kf*kelly(cd.ps,cd.od);
     bets.push({id:`${k}|v|${cd.r.key}`,game:gl,date:f.date,label:cd.r.label,kind:'value',od:cd.od,p:cd.p,ev:cd.ev,stake:stk,primary:i===0,fairOnly:false});});
   let dcKey=favHome?"DC1X":"DCX2", dcRow=rows.find(r=>r.key===dcKey), dcE=rowEval(f,dcRow);
   let dcHasOdds=dcE.od!=null, dcOd=dcHasOdds?dcE.od:dcE.fair;
@@ -376,13 +386,14 @@ function gameCard(f){
 /* ---------- render ---------- */
 function render(){
   trust=parseFloat($("#trust").value); if(isNaN(trust))trust=1;
+  stakeW=parseFloat($("#stakew").value); if(isNaN(stakeW))stakeW=0.5;
   $("#kfrac").disabled=false; $("#kfrac").style.opacity=1;
   let sel=DATA.fixtures.filter(f=>selected.has(fkey(f)));
   $("#cards").innerHTML = sel.length? sel.map(gameCard).join("")
     : `<div class="empty">Pick fixtures on the left.<br>Probabilities are market-anchored; enter book odds on any market to get edge and a stake.</div>`;
   // ----- bet slip tally -----
   const {thr}=getParams();
-  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec||r.cs)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)nEdge++;});});
+  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;if(e.ps*e.od-1>=thr)nEdge++;});});
   let items=[],sStake=0,sEV=0,sPot=0,anyExcl=false;
   sel.forEach(f=>{
     let bets=gameBets(f).filter(b=>slip.has(b.id));
@@ -413,9 +424,9 @@ function render(){
 }
 
 /* ---------- init ---------- */
-$("#trust").value=trust;
+$("#trust").value=trust; $("#stakew").value=stakeW;
 $("#modelmeta").textContent=`${DATA.fixtures.length} fixtures · fit ${DATA.model.fit_through} · market-anchored · decimal odds`;
-["#bankroll","#kfrac","#thresh","#trust","#mode"].forEach(s=>$(s).addEventListener("input",render));
+["#bankroll","#kfrac","#thresh","#trust","#stakew","#mode"].forEach(s=>$(s).addEventListener("input",render));
 $("#search").addEventListener("input",renderFixtures);
 $("#selall").addEventListener("click",()=>{DATA.fixtures.forEach(f=>selected.add(fkey(f)));save();renderFixtures();render();});
 $("#selnone").addEventListener("click",()=>{selected.clear();save();renderFixtures();render();});

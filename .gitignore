@@ -24,9 +24,16 @@ cs_test.js
 _*.png
 _*.js
 _*.json
+_*.npy
 _b64_*.txt
 ChatGPT Image*.png
 files.zip
+
+# model-evaluation artifacts (regenerable via evaluate.py)
+eval_*.png
+eval_*.csv
+eval_metrics_*.json
+model-eval-*.md
 
 # project notes / non-web artifacts (not needed for the public site)
 world-cup-betting-conversation.md
