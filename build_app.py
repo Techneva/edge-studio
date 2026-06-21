@@ -95,7 +95,7 @@ td input{width:56px;padding:3px 5px;border:1px solid var(--line);border-radius:6
 .note{font-size:11px;color:#444;margin-top:7px;line-height:1.4}
 footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
 .disclaim{max-width:780px;margin:0 auto}
-@media(max-width:860px){.layout{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:static}}
+@media(max-width:860px){.layout{flex-direction:column;align-items:stretch}.sidebar{width:auto;min-width:0;height:auto;position:static;border-right:none;border-bottom:1px solid var(--line)}.sidebar #fixtures{max-height:42vh;overflow-y:auto}.main{width:auto;flex:1 1 auto;min-width:0;padding:14px 12px}header{padding:10px 14px;gap:9px}.brand-txt .b1{font-size:16px}.brand-txt .b2{letter-spacing:2px}.comp-select{font-size:12px;padding:5px 8px;max-width:100%}.rec{font-size:14px;padding:10px 12px}.summary .srow{gap:10px}th,td{padding:4px 4px;font-size:11px}td input{width:46px}}
 </style>
 </head>
 <body>
