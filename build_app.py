@@ -113,7 +113,7 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
 <div class="layout">
   <aside class="sidebar">
     <div class="controls">
-      <div><label>Bankroll (u)</label><input id="bankroll" type="number" value="1000" step="50"></div>
+      <div><label>Bankroll (u)</label><input id="bankroll" type="number" value="100" step="10"></div>
       <div><label>Kelly fraction</label><input id="kfrac" type="number" value="0.25" step="0.05" min="0" max="1"></div>
       <div><label>Edge threshold %</label><input id="thresh" type="number" value="2" step="0.5"></div>
       <div><label>Model trust</label><input id="trust" type="number" value="1" step="0.05" min="0" max="1">
@@ -287,7 +287,7 @@ function renderFixtures(){
 /* ---------- card ---------- */
 function gameCard(f){
   const c=calc(f),P=c.P,rows=marketRows(f,c);
-  const bank=parseFloat($("#bankroll").value)||1000,kf=parseFloat($("#kfrac").value),thr=parseFloat($("#thresh").value)/100,mode=$("#mode").value,unit=bank/1000;
+  const bank=parseFloat($("#bankroll").value)||100,kf=parseFloat($("#kfrac").value),thr=parseFloat($("#thresh").value)/100,mode=$("#mode").value,unit=bank/1000;
   let favHome=P.home>=P.away, favLab=favHome?f.home:f.away, favP=favHome?P.home:P.away;
   // value bets = ALL rows with book odds clearing the edge threshold, ranked by EV
   let cands=[];
@@ -336,7 +336,7 @@ function render(){
   $("#cards").innerHTML = sel.length? sel.map(gameCard).join("")
     : `<div class="empty">Pick fixtures on the left.<br>Probabilities are market-anchored; enter book odds on any market to get edge and a stake.</div>`;
   // summary
-  const bank=parseFloat($("#bankroll").value)||1000,kf=parseFloat($("#kfrac").value),thr=parseFloat($("#thresh").value)/100,mode=$("#mode").value,unit=bank/1000;
+  const bank=parseFloat($("#bankroll").value)||100,kf=parseFloat($("#kfrac").value),thr=parseFloat($("#thresh").value)/100,mode=$("#mode").value,unit=bank/1000;
   let nEdge=0,totStake=0,totEV=0,totPot=0;
   let picks=sel.map(f=>{let c=calc(f),P=c.P,favHome=P.home>=P.away,favLab=favHome?f.home:f.away,favP=favHome?P.home:P.away;
     let rows=marketRows(f,c);
