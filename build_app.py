@@ -95,6 +95,9 @@ summary.dayhdr:hover{background:#f8fafd}
 .slipline .se{white-space:nowrap;min-width:54px;text-align:right;font-weight:700;color:var(--green)}
 .slipline .se.neg{color:var(--red)} .slipline .se.muted{color:var(--muted);font-weight:500}
 .slipempty{font-size:12.5px;color:var(--muted);padding:4px 0}
+.slipline.excl{opacity:.65}
+.slipline .lose{color:var(--red);text-decoration:line-through}
+.slipnote{font-size:11px;color:var(--muted);margin-top:7px;line-height:1.45}
 .rec b{font-weight:700}
 .reclabel{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:3px}
 .rec.edge .reclabel{color:var(--green)}
@@ -380,17 +383,25 @@ function render(){
   // ----- bet slip tally -----
   const {thr}=getParams();
   let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec||r.cs)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)nEdge++;});});
-  let items=[],sStake=0,sEV=0,sPot=0;
-  sel.forEach(f=>{gameBets(f).forEach(b=>{if(slip.has(b.id)){items.push(b);sStake+=b.stake;sEV+=b.stake*b.ev;sPot+=b.stake*b.od;}});});
+  let items=[],sStake=0,sEV=0,sPot=0,anyExcl=false;
+  sel.forEach(f=>{
+    let bets=gameBets(f).filter(b=>slip.has(b.id));
+    let csB=bets.filter(b=>b.id.includes("|cs|"));
+    let csWin=csB.length? csB.reduce((m,b)=>b.od<m.od?b:m,csB[0]).id : null; // lowest-priced score = assumed winner
+    bets.forEach(b=>{let isCS=b.id.includes("|cs|"),scenWin=!isCS||b.id===csWin;
+      sStake+=b.stake; sEV+=b.stake*b.ev; if(scenWin)sPot+=b.stake*b.od;       // EV is exact (linearity); only the win-scenario excludes losers
+      if(isCS&&!scenWin)anyExcl=true;
+      items.push(Object.assign({scenLose:isCS&&!scenWin},b));});
+  });
   let roi=sStake>0?sEV/sStake*100:0;
-  let list=items.length? items.map(b=>`<div class="slipline"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${(b.stake*b.od).toFixed(1)}u</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")
+  let list=items.length? items.map(b=>`<div class="slipline${b.scenLose?' excl':''}"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${b.scenLose?'<span class="lose">0u</span>':(b.stake*b.od).toFixed(1)+'u'}</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")+(anyExcl?`<div class="slipnote">Correct scores in the same match can't all win — the “Return if win” figure counts only the shortest-priced selected score per match; the others are still staked but lose.</div>`:"")
      : `<div class="slipempty">No bets ticked yet — tick a recommended or saver bet on any game card to build your slip.</div>`;
   $("#summary").innerHTML=`<div class="srow">
     <div><div class="k">Games</div><div class="v">${sel.length}</div></div>
     <div><div class="k">Bets in slip</div><div class="v">${items.length}</div></div>
     <div><div class="k">Total stake</div><div class="v">${sStake.toFixed(1)}<span class="u"> u</span></div></div>
     <div title="Market-anchored probability-weighted profit across the ticked bets. Negative = paying the margin."><div class="k">Exp. profit</div><div class="v" style="color:${sEV>=0?'var(--green)':'var(--red)'}">${sEV>=0?'+':''}${sEV.toFixed(1)}<span class="u"> u</span> <span class="roi">${roi>=0?'+':''}${roi.toFixed(1)}%</span></div></div>
-    <div title="Combined payout if every ticked bet wins."><div class="k">Return if all win</div><div class="v">${sPot.toFixed(1)}<span class="u"> u</span></div></div>
+    <div title="Payout assuming your bets land. Correct scores in the same match are mutually exclusive, so only the shortest-priced selected score per match is counted as winning."><div class="k">Return if win</div><div class="v">${sPot.toFixed(1)}<span class="u"> u</span></div></div>
     <div><div class="k">Value edges</div><div class="v" style="color:var(--green)">${nEdge}</div></div>
   </div>${sel.length?`<div class="slip"><div class="k" style="margin-bottom:4px">Your slip</div>${list}</div>`:''}`;
   document.querySelectorAll(".mo").forEach(inp=>inp.addEventListener("change",e=>{
