@@ -253,11 +253,13 @@ function marketRows(f,c){
   rows.push({sec:"Both teams to score"});
   rows.push({label:"BTTS Yes",key:"BTTSY",win:P.btts,push:0,loss:1-P.btts});
   rows.push({label:"BTTS No",key:"BTTSN",win:1-P.btts,push:0,loss:P.btts});
+  rows.push({sec:"Correct score (savers)"});
+  topScores(M,3).forEach(([h,a,p])=>rows.push({label:`${f.home} ${h}-${a} ${f.away}`,key:`CS${h}-${a}`,cs:`${h}-${a}`,win:p,push:0,loss:1-p}));
   return rows;
 }
 function rowFair(r){return r.win>0?1+r.loss/r.win:99;}              // push-refund fair odds
 function rowP(r){return r.win/(r.win+r.loss);}                       // effective win prob
-function rowOdds(f,r){let k=fkey(f),o=mOdds[k]||{},mk=f.mkt||{};return o[r.key]??mk[r.key]??r.book??null;}
+function rowOdds(f,r){let k=fkey(f),o=mOdds[k]||{},mk=f.mkt||{};if(r.cs){let cs=f.cs_odds||{};return o[r.key]??cs[r.cs]??null;}return o[r.key]??mk[r.key]??r.book??null;}
 function rowEV(r,odds){return odds!=null? r.win*odds-(r.win+r.loss) : null;}  // per unit staked
 const COMP={"O1.5":"U1.5","U1.5":"O1.5","O2.5":"U2.5","U2.5":"O2.5","O3.5":"U3.5","U3.5":"O3.5","BTTSY":"BTTSN","BTTSN":"BTTSY","DNBH":"DNBA","DNBA":"DNBH"};
 function rowOddsKey(f,key){let k=fkey(f),o=mOdds[k]||{},mk=f.mkt||{};return o[key]??mk[key]??null;}
@@ -312,13 +314,15 @@ function gameBets(f){
   let favHome=P.home>=P.away;
   let bets=[];
   let cands=[];
-  rows.forEach(r=>{if(r.sec)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)cands.push({r,od:e.od,ev:e.ev,p:e.p});});
+  rows.forEach(r=>{if(r.sec||r.cs)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)cands.push({r,od:e.od,ev:e.ev,p:e.p});});
   cands.sort((a,b)=>b.ev-a.ev);
   cands.forEach((cd,i)=>{let stk=bank*kf*kelly(cd.p,cd.od);
     bets.push({id:`${k}|v|${cd.r.key}`,game:gl,date:f.date,label:cd.r.label,kind:'value',od:cd.od,p:cd.p,ev:cd.ev,stake:stk,primary:i===0,fairOnly:false});});
   let dcKey=favHome?"DC1X":"DCX2", dcRow=rows.find(r=>r.key===dcKey), dcE=rowEval(f,dcRow);
   let dcHasOdds=dcE.od!=null, dcOd=dcHasOdds?dcE.od:dcE.fair;
   bets.push({id:`${k}|s|${dcKey}`,game:gl,date:f.date,label:dcRow.label,kind:'saver',od:dcOd,p:dcE.p,ev:dcHasOdds?(dcE.p*dcE.od-1):0,stake:8*unit,primary:false,fairOnly:!dcHasOdds});
+  rows.filter(r=>r.cs).slice(0,3).forEach(r=>{let e=rowEval(f,r),has=e.od!=null;
+    bets.push({id:`${k}|cs|${r.cs}`,game:gl,date:f.date,label:r.label,kind:'saver',od:has?e.od:e.fair,p:e.p,ev:has?e.ev:0,stake:2*unit,primary:false,fairOnly:!has});});
   bets.forEach(b=>{ if(!slipSeen.has(b.id)){ slipSeen.add(b.id);
     if((b.kind==='value'&&b.primary)||(b.kind==='saver'&&mode!=='value')) slip.add(b.id); }});
   return bets;
@@ -375,7 +379,7 @@ function render(){
     : `<div class="empty">Pick fixtures on the left.<br>Probabilities are market-anchored; enter book odds on any market to get edge and a stake.</div>`;
   // ----- bet slip tally -----
   const {thr}=getParams();
-  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)nEdge++;});});
+  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec||r.cs)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)nEdge++;});});
   let items=[],sStake=0,sEV=0,sPot=0;
   sel.forEach(f=>{gameBets(f).forEach(b=>{if(slip.has(b.id)){items.push(b);sStake+=b.stake;sEV+=b.stake*b.ev;sPot+=b.stake*b.od;}});});
   let roi=sStake>0?sEV/sStake*100:0;

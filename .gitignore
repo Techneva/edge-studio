@@ -23,6 +23,7 @@ cs_test.js
 # scratch / source assets (logo is embedded into the build, no need to ship raw files)
 _*.png
 _*.js
+_*.json
 _b64_*.txt
 ChatGPT Image*.png
 files.zip
