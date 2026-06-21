@@ -138,7 +138,7 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
       <div><label>Bankroll (u)</label><input id="bankroll" type="number" value="100" step="10"></div>
       <div><label>Kelly fraction</label><input id="kfrac" type="number" value="0.25" step="0.05" min="0" max="1"></div>
       <div><label>Edge threshold %</label><input id="thresh" type="number" value="2" step="0.5"></div>
-      <div><label>Model trust</label><input id="trust" type="number" value="1" step="0.05" min="0" max="1">
+      <div><label>Model trust</label><input id="trust" type="number" value="0.3" step="0.05" min="0" max="1">
         <div class="hint">display: 0 = follow market · 1 = pure model</div></div>
       <div><label>Stake caution</label><input id="stakew" type="number" value="0.5" step="0.05" min="0" max="1">
         <div class="hint">stake size: 0 = size at market (safest) · 1 = size at full model</div></div>
@@ -202,7 +202,7 @@ function calibrate(lam,mu,rho0,target,overT){let s=lam-mu,t=Math.max(lam+mu,.3),
   return[Math.max((t+s)/2,.04),Math.max((t-s)/2,.04),rho];}
 
 /* ---------- state ---------- */
-let selected=new Set(), mOdds={}, trust=1, stakeW=0.5, slip=new Set(), slipSeen=new Set();
+let selected=new Set(), mOdds={}, trust=0.3, stakeW=0.5, slip=new Set(), slipSeen=new Set();
 const LS="edgestudio_v2";
 try{let s=JSON.parse((typeof localStorage!=="undefined"&&localStorage.getItem(LS))||"{}");
  if(s.selected)selected=new Set(s.selected); if(s.mOdds)mOdds=s.mOdds; if(s.trust!=null)trust=s.trust;
@@ -385,7 +385,7 @@ function gameCard(f){
 
 /* ---------- render ---------- */
 function render(){
-  trust=parseFloat($("#trust").value); if(isNaN(trust))trust=1;
+  trust=parseFloat($("#trust").value); if(isNaN(trust))trust=0.3;
   stakeW=parseFloat($("#stakew").value); if(isNaN(stakeW))stakeW=0.5;
   $("#kfrac").disabled=false; $("#kfrac").style.opacity=1;
   let sel=DATA.fixtures.filter(f=>selected.has(fkey(f)));
