@@ -1,0 +1,55 @@
+name: Build & deploy Edge Studio
+
+# Rebuilds the app (refits the model + regenerates the HTML from the committed
+# odds files) and deploys it to GitHub Pages. Runs:
+#   - on every push to main (e.g. when you push refreshed app_odds.json / market_odds.json)
+#   - once a day on a schedule (re-fit as strengths/decay shift)
+#   - manually via the Actions tab ("Run workflow")
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '0 12 * * *'   # 12:00 UTC daily
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Rebuild app (fit strengths -> app_data.json -> wc-betting-studio.html)
+        run: python rebuild.py
+
+      - name: Stage the static site
+        run: |
+          mkdir -p _site
+          cp wc-betting-studio.html _site/index.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

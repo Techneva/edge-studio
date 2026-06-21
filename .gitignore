@@ -1,0 +1,27 @@
+# generated / local artifacts — the workflow regenerates these
+wc-betting-studio.html
+index.html
+app_data.json
+__pycache__/
+*.pyc
+fit.log
+err.txt
+_site/
+
+# reports / scratch (keep out of the web repo)
+*.pdf
+clv_chart.png
+fitted_xg*.json
+results.csv.new
+engine_test.js
+bugcheck.js
+verify.js
+render_test.js
+order_test.js
+cs_test.js
+
+# project notes / non-web artifacts (not needed for the public site)
+world-cup-betting-conversation.md
+betting-ruleset-v2.md
+model-output.txt
+clv_ledger.csv
