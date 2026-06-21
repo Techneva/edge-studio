@@ -76,6 +76,25 @@ summary.dayhdr:hover{background:#f8fafd}
 .rec{margin:6px 0;padding:12px 14px;border-radius:11px;font-size:15px;line-height:1.5;background:#eef3fc;border:2px solid #b9cdf0}
 .rec.edge{background:var(--greenbg);border-color:#7cc492}
 .rec.flat{background:#f6f8fc;border:1px solid var(--line)}
+.betpick{display:flex;align-items:center;gap:8px;padding:5px 3px;border-bottom:1px dashed rgba(0,0,0,.08);font-size:13px;cursor:pointer}
+.betpick:last-child{border-bottom:none}
+.betpick input{width:16px;height:16px;accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
+.betpick.prim .bl{font-weight:700}
+.betpick .bl{flex:1;min-width:0}
+.betpick .bo{color:var(--navy);font-weight:600;white-space:nowrap}
+.betpick .bs{color:var(--muted);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.betpick .bev{font-weight:700;color:var(--green);white-space:nowrap;min-width:50px;text-align:right}
+.betpick .bev.neg{color:var(--red)} .betpick .bev.muted{color:var(--muted);font-weight:500}
+.recnote{font-size:11px;color:var(--muted);margin-top:6px}
+.slip{width:100%;border-top:1px solid var(--line);margin-top:10px;padding-top:9px}
+.slipline{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:4px 0;border-bottom:1px solid #f0f2f7}
+.slipline:last-child{border-bottom:none}
+.slipline .sg{color:var(--muted);flex:0 0 30%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slipline .sb{flex:1;min-width:0}.slipline .so{color:var(--navy);font-weight:600}
+.slipline .sv{white-space:nowrap;font-variant-numeric:tabular-nums}
+.slipline .se{white-space:nowrap;min-width:54px;text-align:right;font-weight:700;color:var(--green)}
+.slipline .se.neg{color:var(--red)} .slipline .se.muted{color:var(--muted);font-weight:500}
+.slipempty{font-size:12.5px;color:var(--muted);padding:4px 0}
 .rec b{font-weight:700}
 .reclabel{display:block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:3px}
 .rec.edge .reclabel{color:var(--green)}
@@ -95,7 +114,7 @@ td input{width:56px;padding:3px 5px;border:1px solid var(--line);border-radius:6
 .note{font-size:11px;color:#444;margin-top:7px;line-height:1.4}
 footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
 .disclaim{max-width:780px;margin:0 auto}
-@media(max-width:860px){.layout{flex-direction:column;align-items:stretch}.sidebar{width:auto;min-width:0;height:auto;position:static;border-right:none;border-bottom:1px solid var(--line)}.sidebar #fixtures{max-height:42vh;overflow-y:auto}.main{width:auto;flex:1 1 auto;min-width:0;padding:14px 12px}header{padding:10px 14px;gap:9px}.brand-txt .b1{font-size:16px}.brand-txt .b2{letter-spacing:2px}.comp-select{font-size:12px;padding:5px 8px;max-width:100%}.rec{font-size:14px;padding:10px 12px}.summary .srow{gap:10px}th,td{padding:4px 4px;font-size:11px}td input{width:46px}}
+@media(max-width:860px){.layout{flex-direction:column;align-items:stretch}.sidebar{width:auto;min-width:0;height:auto;position:static;border-right:none;border-bottom:1px solid var(--line)}.sidebar #fixtures{max-height:42vh;overflow-y:auto}.main{width:auto;flex:1 1 auto;min-width:0;padding:14px 12px}header{padding:10px 14px;gap:9px}.brand-txt .b1{font-size:16px}.brand-txt .b2{letter-spacing:2px}.comp-select{font-size:12px;padding:5px 8px;max-width:100%}.rec{font-size:14px;padding:10px 12px}.summary .srow{gap:10px}th,td{padding:4px 4px;font-size:11px}td input{width:46px}.betpick{flex-wrap:wrap;gap:4px 8px}.betpick .bl{flex:1 0 100%}.betpick .bs{font-size:11px}.slipline{flex-wrap:wrap;gap:3px 8px}.slipline .sg{flex:1 0 100%}.slipline .sb{flex:1 0 60%}}
 </style>
 </head>
 <body>
@@ -178,12 +197,14 @@ function calibrate(lam,mu,rho0,target,overT){let s=lam-mu,t=Math.max(lam+mu,.3),
   return[Math.max((t+s)/2,.04),Math.max((t-s)/2,.04),rho];}
 
 /* ---------- state ---------- */
-let selected=new Set(), mOdds={}, trust=1;
+let selected=new Set(), mOdds={}, trust=1, slip=new Set(), slipSeen=new Set();
 const LS="edgestudio_v2";
 try{let s=JSON.parse((typeof localStorage!=="undefined"&&localStorage.getItem(LS))||"{}");
- if(s.selected)selected=new Set(s.selected); if(s.mOdds)mOdds=s.mOdds; if(s.trust!=null)trust=s.trust;}catch(e){}
+ if(s.selected)selected=new Set(s.selected); if(s.mOdds)mOdds=s.mOdds; if(s.trust!=null)trust=s.trust;
+ if(s.slip)slip=new Set(s.slip); if(s.slipSeen)slipSeen=new Set(s.slipSeen);}catch(e){}
 function fkey(f){return f.date+"|"+f.home+"|"+f.away;}
-function save(){try{localStorage.setItem(LS,JSON.stringify({selected:[...selected],mOdds,trust}));}catch(e){}}
+function getParams(){let bank=parseFloat($("#bankroll").value)||100;return {bank,kf:parseFloat($("#kfrac").value)||0,thr:parseFloat($("#thresh").value)/100,mode:$("#mode").value,unit:bank/1000};}
+function save(){try{localStorage.setItem(LS,JSON.stringify({selected:[...selected],mOdds,trust,slip:[...slip],slipSeen:[...slipSeen]}));}catch(e){}}
 function num(v){let x=parseFloat(v);return isNaN(x)?null:x;}
 
 /* ---------- per-game calibration + markets ---------- */
@@ -284,28 +305,45 @@ function renderFixtures(){
   $("#pickcount").textContent=`Fixtures (${n})`;
 }
 
-/* ---------- card ---------- */
-function gameCard(f){
-  const c=calc(f),P=c.P,rows=marketRows(f,c);
-  const bank=parseFloat($("#bankroll").value)||100,kf=parseFloat($("#kfrac").value),thr=parseFloat($("#thresh").value)/100,mode=$("#mode").value,unit=bank/1000;
-  let favHome=P.home>=P.away, favLab=favHome?f.home:f.away, favP=favHome?P.home:P.away;
-  // value bets = ALL rows with book odds clearing the edge threshold, ranked by EV
+/* ---------- bet slip model ---------- */
+function gameBets(f){
+  const {bank,kf,thr,unit,mode}=getParams();
+  const c=calc(f),P=c.P,rows=marketRows(f,c),k=fkey(f),gl=`${f.home} v ${f.away}`;
+  let favHome=P.home>=P.away;
+  let bets=[];
   let cands=[];
   rows.forEach(r=>{if(r.sec)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)cands.push({r,od:e.od,ev:e.ev,p:e.p});});
   cands.sort((a,b)=>b.ev-a.ev);
-  // insurance = favourite double chance
-  let dcRow=rows.find(r=>r.key===(favHome?"DC1X":"DCX2")), dcE=rowEval(f,dcRow), dcOdds=dcE.od, dcFair=dcE.fair;
-  // recommended bet block
+  cands.forEach((cd,i)=>{let stk=bank*kf*kelly(cd.p,cd.od);
+    bets.push({id:`${k}|v|${cd.r.key}`,game:gl,date:f.date,label:cd.r.label,kind:'value',od:cd.od,p:cd.p,ev:cd.ev,stake:stk,primary:i===0,fairOnly:false});});
+  let dcKey=favHome?"DC1X":"DCX2", dcRow=rows.find(r=>r.key===dcKey), dcE=rowEval(f,dcRow);
+  let dcHasOdds=dcE.od!=null, dcOd=dcHasOdds?dcE.od:dcE.fair;
+  bets.push({id:`${k}|s|${dcKey}`,game:gl,date:f.date,label:dcRow.label,kind:'saver',od:dcOd,p:dcE.p,ev:dcHasOdds?(dcE.p*dcE.od-1):0,stake:8*unit,primary:false,fairOnly:!dcHasOdds});
+  bets.forEach(b=>{ if(!slipSeen.has(b.id)){ slipSeen.add(b.id);
+    if((b.kind==='value'&&b.primary)||(b.kind==='saver'&&mode!=='value')) slip.add(b.id); }});
+  return bets;
+}
+function betRow(b){
+  let ch=slip.has(b.id)?'checked':'';
+  let price=b.fairOnly?`fair ${b.od.toFixed(2)}`:`@ ${b.od}`;
+  let ev=b.kind==='value'?`<span class="bev">+${(b.ev*100).toFixed(1)}%</span>`
+        :(b.fairOnly?'<span class="bev muted">no book price</span>':`<span class="bev ${b.ev>=0?'':'neg'}">${b.ev>=0?'+':''}${(b.ev*100).toFixed(1)}%</span>`);
+  return `<label class="betpick${b.primary?' prim':''}"><input type="checkbox" class="betchk" data-id="${b.id}" ${ch}>`+
+    `<span class="bl">${b.label}</span><span class="bo">${price}</span>`+
+    `<span class="bs">${b.stake.toFixed(1)}u &rarr; ${(b.stake*b.od).toFixed(1)}u</span>${ev}</label>`;
+}
+
+/* ---------- card ---------- */
+function gameCard(f){
+  const c=calc(f),P=c.P,rows=marketRows(f,c);
+  let bets=gameBets(f);
+  let valueBets=bets.filter(b=>b.kind==='value'), savers=bets.filter(b=>b.kind==='saver');
   let rec,recClass;
-  if(cands.length){ recClass="edge";
-    rec=cands.map((c,i)=>{let stk=bank*kf*kelly(c.p,c.od);
-      return `${i===0?'<b>BET</b> &nbsp;':'<span style="color:var(--muted)">also</span> &nbsp;'}<b>${c.r.label}</b> @ ${c.od} · stake ${stk.toFixed(0)}u &rarr; ${(stk*c.od).toFixed(1)}u <span style="color:var(--green);font-weight:700">+${(c.ev*100).toFixed(1)}%</span>`;}).join("<br>");
-    if(cands.length>1) rec+=`<div style="font-size:11px;color:var(--muted);margin-top:5px">${cands.length} value bets — several overlap (e.g. a win and its handicap), so don't stake them all independently; pick one expression of the same view.</div>`;
-  } else rec=`<b>No value bet</b> — priced markets are at/under the ${$("#thresh").value}% edge after anchoring. Enter book odds on more markets (handicap, totals, double chance) to surface others.`,recClass="flat";
-  // insurance line
-  let insStake=(mode==="insured"?8*unit:0);
-  let insOdds=dcOdds??dcFair;
-  let ins=`<span class="reclabel">Lower-variance pick (insurance)</span><b>${dcRow.label}</b> · model ${(dcE.p*100).toFixed(0)}% · ${dcOdds?("@ "+dcOdds):("fair "+dcFair.toFixed(2))}${insStake>0?` · stake ${insStake.toFixed(0)}u`:""}`;
+  if(valueBets.length){ recClass="edge";
+    rec=valueBets.map(betRow).join("");
+    if(valueBets.length>1) rec+=`<div class="recnote">${valueBets.length} value bets — several overlap (e.g. a win and its handicap); tick only one expression of the same view.</div>`;
+  } else { recClass="flat"; rec=`<div class="recnote"><b>No value bet</b> — priced markets are at/under the ${$("#thresh").value}% edge after anchoring. Enter book odds on more markets to surface others, or tick a saver below.</div>`; }
+  let ins=savers.map(betRow).join("");
   // markets table
   let tb="";
   rows.forEach(r=>{ if(r.sec){tb+=`<tr class="secrow"><td colspan="5">${r.sec}</td></tr>`;return;}
@@ -320,8 +358,8 @@ function gameCard(f){
     : `pure model (no market odds) ${(P.home*100).toFixed(0)}/${(P.draw*100).toFixed(0)}/${(P.away*100).toFixed(0)}`;
   return `<div class="game"><h3>${f.home} <span style="color:var(--muted)">vs</span> ${f.away}</h3>
     <div class="sub">${dd} · ${f.venue||''} ${f.neutral?'':'· <span style="color:var(--accent)">host</span>'} · xG ${c.lam.toFixed(2)}–${c.mu.toFixed(2)} · ${anchorNote}</div>
-    <div class="rec ${recClass}"><span class="reclabel">Recommended bet</span>${rec}</div>
-    <div class="ins">${ins}</div>
+    <div class="rec ${recClass}"><span class="reclabel">Recommended bet — tick to add to slip</span>${rec}</div>
+    <div class="ins"><span class="reclabel">Saver · lower-variance pick</span>${ins}</div>
     <div class="datahdr">Markets — model-priced (enter book odds for edge)</div>
     <table><thead><tr><th>Market</th><th>Model</th><th>Fair</th><th>Your odds (dec)</th><th>EV</th></tr></thead><tbody>${tb}</tbody></table>
     <div class="scorebar"><b>Correct score (high-margin lottery, reference only):</b> ${ts}</div>
@@ -331,40 +369,32 @@ function gameCard(f){
 /* ---------- render ---------- */
 function render(){
   trust=parseFloat($("#trust").value); if(isNaN(trust))trust=1;
-  $("#kfrac").disabled=($("#mode").value!=="value"); $("#kfrac").style.opacity=$("#mode").value!=="value"?0.45:1;
+  $("#kfrac").disabled=false; $("#kfrac").style.opacity=1;
   let sel=DATA.fixtures.filter(f=>selected.has(fkey(f)));
   $("#cards").innerHTML = sel.length? sel.map(gameCard).join("")
     : `<div class="empty">Pick fixtures on the left.<br>Probabilities are market-anchored; enter book odds on any market to get edge and a stake.</div>`;
-  // summary
-  const bank=parseFloat($("#bankroll").value)||100,kf=parseFloat($("#kfrac").value),thr=parseFloat($("#thresh").value)/100,mode=$("#mode").value,unit=bank/1000;
-  let nEdge=0,totStake=0,totEV=0,totPot=0;
-  let picks=sel.map(f=>{let c=calc(f),P=c.P,favHome=P.home>=P.away,favLab=favHome?f.home:f.away,favP=favHome?P.home:P.away;
-    let rows=marketRows(f,c);
-    rows.forEach(r=>{if(r.sec)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)nEdge++;});
-    if(mode==="value"){
-      rows.forEach(r=>{if(r.sec)return;let e=rowEval(f,r);if(e.od==null)return;
-        if(e.ev>=thr){let stk=bank*kf*kelly(e.p,e.od);totStake+=stk;totEV+=stk*e.ev;totPot+=stk*e.od;}});
-    } else {
-      let o=c.o1x2, favOdds=o?(favHome?o[0]:o[2]):null, core=10*unit;
-      totStake+=core; if(favOdds){totEV+=core*(favP*favOdds-1);totPot+=core*favOdds;}
-      let dcRow=rows.find(r=>r.key===(favHome?"DC1X":"DCX2")),dcE=rowEval(f,dcRow),dcOdds=dcE.od??dcE.fair,ins=8*unit;
-      totStake+=ins; totEV+=ins*(dcE.p*dcOdds-1); totPot+=ins*dcOdds;
-    }
-    let ts=topScores(c.M,1)[0];
-    return `<span class="pick"><b>${favLab} win</b> ${(favP*100).toFixed(0)}%<span class="pscore">most likely ${f.home} ${ts[0]}-${ts[1]} ${f.away} ${(ts[2]*100).toFixed(0)}%</span></span>`;
-  }).join("");
-  let roi=totStake>0?totEV/totStake*100:0;
+  // ----- bet slip tally -----
+  const {thr}=getParams();
+  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c);rows.forEach(r=>{if(r.sec)return;let e=rowEval(f,r);if(e.od==null)return;if(e.ev>=thr)nEdge++;});});
+  let items=[],sStake=0,sEV=0,sPot=0;
+  sel.forEach(f=>{gameBets(f).forEach(b=>{if(slip.has(b.id)){items.push(b);sStake+=b.stake;sEV+=b.stake*b.ev;sPot+=b.stake*b.od;}});});
+  let roi=sStake>0?sEV/sStake*100:0;
+  let list=items.length? items.map(b=>`<div class="slipline"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${(b.stake*b.od).toFixed(1)}u</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")
+     : `<div class="slipempty">No bets ticked yet — tick a recommended or saver bet on any game card to build your slip.</div>`;
   $("#summary").innerHTML=`<div class="srow">
-    <div><div class="k">Selected</div><div class="v">${sel.length}</div></div>
-    <div><div class="k">Total stake</div><div class="v">${totStake.toFixed(0)}<span class="u"> u</span></div></div>
-    <div title="Market-anchored probability-weighted profit. Negative = paying the margin."><div class="k">Exp. profit</div><div class="v" style="color:${totEV>=0?'var(--green)':'var(--red)'}">${totEV>=0?'+':''}${totEV.toFixed(0)}<span class="u"> u</span> <span class="roi">${roi>=0?'+':''}${roi.toFixed(1)}%</span></div></div>
-    <div title="Payout if every favourite wins (core + insurance both cash)."><div class="k">Return if favs win</div><div class="v">${totPot.toFixed(0)}<span class="u"> u</span></div></div>
+    <div><div class="k">Games</div><div class="v">${sel.length}</div></div>
+    <div><div class="k">Bets in slip</div><div class="v">${items.length}</div></div>
+    <div><div class="k">Total stake</div><div class="v">${sStake.toFixed(1)}<span class="u"> u</span></div></div>
+    <div title="Market-anchored probability-weighted profit across the ticked bets. Negative = paying the margin."><div class="k">Exp. profit</div><div class="v" style="color:${sEV>=0?'var(--green)':'var(--red)'}">${sEV>=0?'+':''}${sEV.toFixed(1)}<span class="u"> u</span> <span class="roi">${roi>=0?'+':''}${roi.toFixed(1)}%</span></div></div>
+    <div title="Combined payout if every ticked bet wins."><div class="k">Return if all win</div><div class="v">${sPot.toFixed(1)}<span class="u"> u</span></div></div>
     <div><div class="k">Value edges</div><div class="v" style="color:var(--green)">${nEdge}</div></div>
-    <div><div class="k">Calibration</div><div class="v" style="font-size:12px;font-weight:600">trust ${trust} · ρ ${DATA.model.rho}</div></div>
-  </div>${sel.length?`<div class="picks"><div class="k" style="margin-bottom:4px">Most-probable picks</div>${picks}</div>`:''}`;
+  </div>${sel.length?`<div class="slip"><div class="k" style="margin-bottom:4px">Your slip</div>${list}</div>`:''}`;
   document.querySelectorAll(".mo").forEach(inp=>inp.addEventListener("change",e=>{
     let k=e.target.dataset.k,m=e.target.dataset.m,v=num(e.target.value);
     mOdds[k]=mOdds[k]||{}; if(v==null)delete mOdds[k][m]; else mOdds[k][m]=v; save(); render();}));
+  document.querySelectorAll(".betchk").forEach(cb=>cb.addEventListener("change",e=>{
+    let id=e.target.dataset.id; if(e.target.checked)slip.add(id); else slip.delete(id); save(); render();}));
+  save();
 }
 
 /* ---------- init ---------- */
