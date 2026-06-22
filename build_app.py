@@ -34,6 +34,7 @@ header .meta{font-size:11px;color:#b9c4dc}
 .picker-head .t{font-weight:700;font-size:12.5px}
 .btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px}
 .btn:hover{background:var(--chip)}
+.btn.reset{width:100%;margin-top:2px;color:var(--navy);font-weight:600}
 .search{margin:10px 14px;width:calc(100% - 28px);padding:7px 10px;border:1px solid var(--line);border-radius:8px}
 .daygroup{border-bottom:1px solid #eef1f6}
 summary.dayhdr{cursor:pointer;list-style:none;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;padding:9px 14px;display:flex;align-items:center;gap:7px;user-select:none}
@@ -146,6 +147,7 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
       <div class="full"><label>Bet mode</label>
         <select id="mode"><option value="insured" selected>Favourite + insurance (low risk)</option>
         <option value="value">Value bets only (edge ≥ thr)</option></select></div>
+      <div class="full"><button class="btn reset" id="reset" title="Reset bankroll, Kelly, threshold, trust, stake caution and mode to defaults">↺ Reset parameters to defaults</button></div>
     </div>
     <div class="picker-head"><span class="t" id="pickcount">Fixtures</span>
       <span><button class="btn" id="selall">All</button> <button class="btn" id="selnone">Clear</button></span></div>
@@ -446,6 +448,8 @@ $("#modelmeta").textContent=`${DATA.fixtures.length} fixtures · fit ${DATA.mode
 $("#search").addEventListener("input",renderFixtures);
 $("#selall").addEventListener("click",()=>{DATA.fixtures.forEach(f=>selected.add(fkey(f)));save();renderFixtures();render();});
 $("#selnone").addEventListener("click",()=>{selected.clear();save();renderFixtures();render();});
+const DEFAULTS={bankroll:100,kfrac:0.25,thresh:2,trust:0.3,stakew:0.5,mode:"insured"};
+$("#reset").addEventListener("click",()=>{for(const k in DEFAULTS)$("#"+k).value=DEFAULTS[k];render();});
 renderFixtures();render();
 </script>
 </body>

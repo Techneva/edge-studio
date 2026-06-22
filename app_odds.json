@@ -9,7 +9,7 @@
   4.6,
   6.0
  ],
- "Ecuador|Curaçao": [
+ "Ecuador|Cura\u00e7ao": [
   1.1,
   11.0,
   21.0
@@ -41,23 +41,23 @@
  ],
  "Jordan|Algeria": [
   6.0,
-  4.0,
-  1.57
+  4.4,
+  1.513
  ],
  "Argentina|Austria": [
-  1.69,
-  3.8,
-  5.75
+  1.417,
+  4.5,
+  7.5
  ],
  "France|Iraq": [
-  1.11,
-  10.0,
-  29.0
+  1.067,
+  13.0,
+  34.0
  ],
  "Norway|Senegal": [
-  2.0,
+  2.15,
   3.4,
-  3.0
+  3.3
  ],
  "Portugal|Uzbekistan": [
   1.2,
@@ -109,7 +109,7 @@
   3.55,
   3.55
  ],
- "Curaçao|Ivory Coast": [
+ "Cura\u00e7ao|Ivory Coast": [
   8.5,
   4.5,
   1.345

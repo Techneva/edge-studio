@@ -31,11 +31,16 @@ LEDGER = [
  dict(date="2026-06-20", game="Germany vs Ivory Coast",side="home", taken=(1.50,4.50,5.75), close=(1.50,4.60,6.00),  stake=10, result="W"),  # GER 2-1
  dict(date="2026-06-20", game="Ecuador vs Curacao",    side="home", taken=(1.13,9.00,19.0), close=(1.10,11.0,21.0),  stake=10, result="L"),  # ECU 0-0 draw
  dict(date="2026-06-20", game="Japan vs Tunisia",      side="home", taken=(1.526,4.10,7.00),close=(1.5405,4.10,7.00),stake=10, result="W"),  # JPN 4-0
- # --- Sunday Jun 21 (today; closing lines logged, results pending) ---
- dict(date="2026-06-21", game="Belgium vs Iran",       side="home", taken=(1.40,4.70,7.50),  close=(1.435,4.60,7.50),  stake=10, result=None),
- dict(date="2026-06-21", game="New Zealand vs Egypt",  side="away", taken=(5.90,4.00,1.588),  close=(5.75,4.00,1.629), stake=10, result=None),
- dict(date="2026-06-21", game="Spain vs Saudi Arabia", side="home", taken=(1.10,10.5,21.0),   close=(1.10,10.5,21.0),  stake=10, result=None),
- dict(date="2026-06-21", game="Uruguay vs Cape Verde", side="home", taken=(1.435,4.20,9.00),  close=(1.444,4.00,8.50), stake=10, result=None),
+ # --- Sunday Jun 21 (SETTLED: BEL 0-0 IRN, EGY 3-1 NZ, ESP 4-0 KSA, URU 2-2 CPV) ---
+ dict(date="2026-06-21", game="Belgium vs Iran",       side="home", taken=(1.40,4.70,7.50),  close=(1.435,4.60,7.50),  stake=10, result="L"),  # 0-0 draw
+ dict(date="2026-06-21", game="New Zealand vs Egypt",  side="away", taken=(5.90,4.00,1.588),  close=(5.75,4.00,1.629), stake=10, result="W"),  # EGY 3-1
+ dict(date="2026-06-21", game="Spain vs Saudi Arabia", side="home", taken=(1.10,10.5,21.0),   close=(1.10,10.5,21.0),  stake=10, result="W"),  # ESP 4-0
+ dict(date="2026-06-21", game="Uruguay vs Cape Verde", side="home", taken=(1.435,4.20,9.00),  close=(1.444,4.00,8.50), stake=10, result="L"),  # 2-2 draw
+ # --- Monday Jun 22 (today; closing lines logged, results pending) ---
+ dict(date="2026-06-22", game="Argentina vs Austria",  side="home", taken=(1.69,3.80,5.75),   close=(1.417,4.50,7.50), stake=10, result=None),
+ dict(date="2026-06-22", game="France vs Iraq",        side="home", taken=(1.11,10.0,29.0),   close=(1.067,13.0,34.0), stake=10, result=None),
+ dict(date="2026-06-22", game="Norway vs Senegal",     side="home", taken=(2.00,3.40,3.00),   close=(2.15,3.40,3.30),  stake=10, result=None),
+ dict(date="2026-06-22", game="Jordan vs Algeria",     side="away", taken=(6.00,4.00,1.57),   close=(6.00,4.40,1.513), stake=10, result=None),
 ]
 
 def fair_prob(three_way, side):
