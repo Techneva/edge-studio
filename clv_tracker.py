@@ -36,11 +36,30 @@ LEDGER = [
  dict(date="2026-06-21", game="New Zealand vs Egypt",  side="away", taken=(5.90,4.00,1.588),  close=(5.75,4.00,1.629), stake=10, result="W"),  # EGY 3-1
  dict(date="2026-06-21", game="Spain vs Saudi Arabia", side="home", taken=(1.10,10.5,21.0),   close=(1.10,10.5,21.0),  stake=10, result="W"),  # ESP 4-0
  dict(date="2026-06-21", game="Uruguay vs Cape Verde", side="home", taken=(1.435,4.20,9.00),  close=(1.444,4.00,8.50), stake=10, result="L"),  # 2-2 draw
- # --- Monday Jun 22 (today; closing lines logged, results pending) ---
- dict(date="2026-06-22", game="Argentina vs Austria",  side="home", taken=(1.69,3.80,5.75),   close=(1.417,4.50,7.50), stake=10, result=None),
- dict(date="2026-06-22", game="France vs Iraq",        side="home", taken=(1.11,10.0,29.0),   close=(1.067,13.0,34.0), stake=10, result=None),
- dict(date="2026-06-22", game="Norway vs Senegal",     side="home", taken=(2.00,3.40,3.00),   close=(2.15,3.40,3.30),  stake=10, result=None),
- dict(date="2026-06-22", game="Jordan vs Algeria",     side="away", taken=(6.00,4.00,1.57),   close=(6.00,4.40,1.513), stake=10, result=None),
+ # --- Monday Jun 22 (SETTLED: ARG 2-0 AUT, FRA 3-0 IRQ, NOR 3-2 SEN, JOR 1-2 ALG) ---
+ dict(date="2026-06-22", game="Argentina vs Austria",  side="home", taken=(1.69,3.80,5.75),   close=(1.417,4.50,7.50), stake=10, result="W"),  # ARG 2-0
+ dict(date="2026-06-22", game="France vs Iraq",        side="home", taken=(1.11,10.0,29.0),   close=(1.067,13.0,34.0), stake=10, result="W"),  # FRA 3-0
+ dict(date="2026-06-22", game="Norway vs Senegal",     side="home", taken=(2.00,3.40,3.00),   close=(2.15,3.40,3.30),  stake=10, result="W"),  # NOR 3-2
+ dict(date="2026-06-22", game="Jordan vs Algeria",     side="away", taken=(6.00,4.00,1.57),   close=(6.00,4.40,1.513), stake=10, result="W"),  # ALG 2-1
+ # --- Tuesday Jun 23 (SETTLED: COL 1-0 DRC, ENG 0-0 GHA, CRO 1-0 PAN, POR 5-0 UZB) ---
+ dict(date="2026-06-23", game="Colombia vs DR Congo",      side="home", taken=(1.526,4.00,7.00),  close=(1.526,4.00,7.00),  stake=10, result="W"),  # COL 1-0
+ dict(date="2026-06-23", game="England vs Ghana",          side="home", taken=(1.222,6.50,13.0),  close=(1.222,6.50,13.0),  stake=10, result="L"),  # 0-0 draw
+ dict(date="2026-06-23", game="Panama vs Croatia",         side="away", taken=(7.00,4.10,1.50),   close=(7.00,4.10,1.50),   stake=10, result="W"),  # CRO 1-0
+ dict(date="2026-06-23", game="Portugal vs Uzbekistan",    side="home", taken=(1.20,7.00,12.0),   close=(1.20,7.00,12.0),   stake=10, result="W"),  # POR 5-0
+ # --- Wednesday Jun 24 (SETTLED: BIH 3-1 QAT, SUI 2-1 CAN, MEX 3-0 CZE, MAR 4-2 HAI, BRA 3-0 SCO, RSA 1-0 KOR) ---
+ dict(date="2026-06-24", game="Bosnia and Herzegovina vs Qatar", side="home", taken=(1.37,5.00,7.00),  close=(1.37,5.00,7.00),  stake=10, result="W"),  # BIH 3-1
+ dict(date="2026-06-24", game="Canada vs Switzerland",           side="away", taken=(3.30,3.00,2.35),  close=(3.30,3.00,2.35),  stake=10, result="W"),  # SUI 2-1
+ dict(date="2026-06-24", game="Mexico vs Czech Republic",        side="home", taken=(1.91,3.90,3.75),  close=(1.91,3.90,3.75),  stake=10, result="W"),  # MEX 3-0
+ dict(date="2026-06-24", game="Morocco vs Haiti",                side="home", taken=(1.182,7.00,15.0), close=(1.182,7.00,15.0), stake=10, result="W"),  # MAR 4-2
+ dict(date="2026-06-24", game="Scotland vs Brazil",              side="away", taken=(8.00,5.00,1.364), close=(8.00,5.00,1.364), stake=10, result="W"),  # BRA 3-0
+ dict(date="2026-06-24", game="South Africa vs South Korea",     side="away", taken=(5.25,3.80,1.649), close=(5.25,3.80,1.649), stake=10, result="L"),  # RSA 1-0 (KOR lost)
+ # --- Saturday Jun 27 (taken at near-kickoff close; ENG & CRO settled, others pending) ---
+ dict(date="2026-06-27", game="Jordan vs Argentina",     side="away", taken=(17.0,7.50,1.143), close=(17.0,7.50,1.143), stake=10, result=None),
+ dict(date="2026-06-27", game="Panama vs England",       side="away", taken=(17.0,8.00,1.143), close=(17.0,8.00,1.143), stake=10, result="W"),  # ENG 2-0
+ dict(date="2026-06-27", game="Colombia vs Portugal",    side="away", taken=(3.50,3.80,1.952), close=(3.50,3.80,1.952), stake=10, result=None),
+ dict(date="2026-06-27", game="Algeria vs Austria",      side="away", taken=(4.20,2.15,2.90),  close=(4.20,2.15,2.90),  stake=10, result=None),
+ dict(date="2026-06-27", game="DR Congo vs Uzbekistan",  side="home", taken=(1.714,4.20,5.25), close=(1.714,4.20,5.25), stake=10, result=None),
+ dict(date="2026-06-27", game="Croatia vs Ghana",        side="home", taken=(1.769,3.10,5.90), close=(1.769,3.10,5.90), stake=10, result="W"),  # CRO 2-1
 ]
 
 def fair_prob(three_way, side):
@@ -107,7 +126,7 @@ fig, ax = plt.subplots(figsize=(7, 3.1))
 bars = ax.bar(labels, clvs, color=["#2e7d32" if c > 0 else "#b23b3b" for c in clvs], alpha=0.75, width=0.55)
 ax.plot(labels, cumavg, "o-", color="#1b2a4a", lw=2, label="running avg CLV")
 ax.axhline(0, color="#888", lw=1)
-ax.set_ylabel("CLV %"); ax.set_title("Closing Line Value per bet (today's 4, real open->close)")
+ax.set_ylabel("CLV %"); ax.set_title("Closing Line Value per bet")
 ax.legend(fontsize=8, loc="lower right")
 for b, c in zip(bars, clvs):
     ax.text(b.get_x()+b.get_width()/2, c + (0.15 if c >= 0 else -0.35), f"{c:+.1f}", ha="center", fontsize=7.5)

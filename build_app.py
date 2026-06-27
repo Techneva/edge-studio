@@ -175,7 +175,7 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
 </div>
 <footer><div class="disclaim">
   Dixon-Coles model on real international results, <b>calibrated toward the de-vigged market line</b> (model-trust slider).
-  Low-margin markets (Asian handicap, totals, double chance) are priced straight from the model; correct score is a high-margin lottery, shown for reference only.
+  Value bets are flagged only on goal-shape markets (totals, Asian handicap, BTTS); the result markets (1X2, draw-no-bet, double chance) are left to the market, which prices the outcome more accurately than the model. The lower-variance double-chance 'saver' is offered for coverage; correct score is a high-margin lottery shown for reference only (not a recommended bet).
   All odds are <b>decimal</b>. The bookmaker margin is in every price — this manages process and variance, <b>not</b> a guaranteed edge. Not betting advice.
 </div></footer>
 <script>
@@ -194,6 +194,7 @@ function ah(m,side,line){let win=0,push=0,loss=0,MAX=m.length-1;for(let h=0;h<=M
 function ou(m,line){let over=0,MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++)if(h+a>line)over+=m[h][a];return over;}
 function kelly(p,o){let b=o-1;return Math.max(0,(b*p-(1-p))/b);}
 const CONF=0.70, ZK=0.5;   // edge-confidence gate; staking lower-bound z
+const RESULTMK=new Set(["H","D","A","DNBH","DNBA","DC1X","DCX2"]); // result markets: market prices these better than the model -> never flag as value
 function gauss(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 function erf(x){let s=x<0?-1:1;x=Math.abs(x);let t=1/(1+0.3275911*x);let y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
 function normCdf(x){return 0.5*(1+erf(x/Math.SQRT2));}
@@ -272,7 +273,7 @@ function marketRows(f,c){
   rows.push({sec:"Both teams to score"});
   rows.push({label:"BTTS Yes",key:"BTTSY",win:P.btts,push:0,loss:1-P.btts});
   rows.push({label:"BTTS No",key:"BTTSN",win:1-P.btts,push:0,loss:P.btts});
-  rows.push({sec:"Correct score (savers)"});
+  rows.push({sec:"Correct score (reference only — high-margin lottery)"});
   topScores(M,3).forEach(([h,a,p])=>rows.push({label:`${f.home} ${h}-${a} ${f.away}`,key:`CS${h}-${a}`,cs:`${h}-${a}`,win:p,push:0,loss:1-p}));
   return rows;
 }
@@ -342,7 +343,7 @@ function gameBets(f){
   let bets=[];
   let cands=[];
   let pstd=pstdFor(f);
-  rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;
+  rows.forEach(r=>{if(r.sec||r.cs||RESULTMK.has(r.key))return;let e=rowEval(f,r);if(e.od==null)return;
     let evMean=e.ps*e.od-1, psStd=stakeW*(pstd[r.key]||0), edgeStd=psStd*e.od;
     let pPos=edgeStd>1e-6?normCdf(evMean/edgeStd):(evMean>0?1:0), ir=edgeStd>1e-6?evMean/edgeStd:9;
     if(evMean>=thr && pPos>=CONF) cands.push({r,od:e.od,ev:evMean,pPos,ir,p:e.p,psK:Math.max(0,e.ps-ZK*psStd)});});
@@ -352,8 +353,6 @@ function gameBets(f){
   let dcKey=favHome?"DC1X":"DCX2", dcRow=rows.find(r=>r.key===dcKey), dcE=rowEval(f,dcRow);
   let dcHasOdds=dcE.od!=null, dcOd=dcHasOdds?dcE.od:dcE.fair;
   bets.push({id:`${k}|s|${dcKey}`,game:gl,date:f.date,label:dcRow.label,kind:'saver',od:dcOd,p:dcE.p,ev:dcHasOdds?(dcE.p*dcE.od-1):0,stake:8*unit,primary:false,fairOnly:!dcHasOdds});
-  rows.filter(r=>r.cs).slice(0,3).forEach(r=>{let e=rowEval(f,r),has=e.od!=null;
-    bets.push({id:`${k}|cs|${r.cs}`,game:gl,date:f.date,label:r.label,kind:'saver',od:has?e.od:e.fair,p:e.p,ev:has?e.ev:0,stake:2*unit,primary:false,fairOnly:!has});});
   bets.forEach(b=>{ if(!slipSeen.has(b.id)){ slipSeen.add(b.id);
     if((b.kind==='value'&&b.primary)||(b.kind==='saver'&&mode!=='value')) slip.add(b.id); }});
   return bets;
@@ -411,7 +410,7 @@ function render(){
     : `<div class="empty">Pick fixtures on the left.<br>Probabilities are market-anchored; enter book odds on any market to get edge and a stake.</div>`;
   // ----- bet slip tally -----
   const {thr}=getParams();
-  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c),pstd=pstdFor(f);rows.forEach(r=>{if(r.sec||r.cs||r.key==="H"||r.key==="D"||r.key==="A")return;let e=rowEval(f,r);if(e.od==null)return;let evM=e.ps*e.od-1,es=stakeW*(pstd[r.key]||0)*e.od,pp=es>1e-6?normCdf(evM/es):(evM>0?1:0);if(evM>=thr&&pp>=CONF)nEdge++;});});
+  let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c),pstd=pstdFor(f);rows.forEach(r=>{if(r.sec||r.cs||RESULTMK.has(r.key))return;let e=rowEval(f,r);if(e.od==null)return;let evM=e.ps*e.od-1,es=stakeW*(pstd[r.key]||0)*e.od,pp=es>1e-6?normCdf(evM/es):(evM>0?1:0);if(evM>=thr&&pp>=CONF)nEdge++;});});
   let items=[],sStake=0,sEV=0,sPot=0,anyExcl=false;
   sel.forEach(f=>{
     let bets=gameBets(f).filter(b=>slip.has(b.id));
