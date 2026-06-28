@@ -77,6 +77,9 @@ summary.dayhdr:hover{background:#f8fafd}
 .rec{margin:6px 0;padding:12px 14px;border-radius:11px;font-size:15px;line-height:1.5;background:#eef3fc;border:2px solid #b9cdf0}
 .rec.edge{background:var(--greenbg);border-color:#7cc492}
 .rec.flat{background:#f6f8fc;border:1px solid var(--line)}
+.advline{margin:6px 0;padding:7px 11px;border-radius:9px;background:#eef6ff;border:1px solid #cfe2f7;font-size:13px;color:var(--navy)}
+.advline .advlabel{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-right:5px}
+.advline .advnote{font-size:10.5px;color:var(--muted);font-weight:400;margin-left:4px}
 .betpick{display:flex;align-items:center;gap:8px;padding:5px 3px;border-bottom:1px dashed rgba(0,0,0,.08);font-size:13px;cursor:pointer}
 .betpick:last-child{border-bottom:none}
 .betpick input{width:16px;height:16px;accent-color:var(--accent);flex:0 0 auto;cursor:pointer}
@@ -97,6 +100,20 @@ summary.dayhdr:hover{background:#f8fafd}
 .slipline .se{white-space:nowrap;min-width:54px;text-align:right;font-weight:700;color:var(--green)}
 .slipline .se.neg{color:var(--red)} .slipline .se.muted{color:var(--muted);font-weight:500}
 .slipempty{font-size:12.5px;color:var(--muted);padding:4px 0}
+.lottery{width:100%;border-top:1px solid var(--line);margin-top:10px;padding-top:9px}
+.lottery .lottlbl{font-size:11px;font-weight:400;color:var(--muted)}
+.lotline{display:flex;align-items:baseline;gap:10px;font-size:12.5px;padding:3px 0;border-bottom:1px solid #f0f2f7}
+.lotline:last-child{border-bottom:none}
+.lotline .lg{flex:0 0 34%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}
+.lotline .lps{flex:1;display:flex;flex-wrap:wrap;gap:12px}
+.lscore{white-space:nowrap;font-variant-numeric:tabular-nums}
+.lscore .lod{color:var(--navy);font-weight:600}
+.lscore .lev{color:var(--green);font-weight:700}
+.lgrp{display:inline-flex;align-items:baseline;gap:5px;flex-wrap:wrap}
+.lgrp .ltag{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:var(--accent);background:#eef3fc;border-radius:5px;padding:1px 4px;white-space:nowrap}
+.lchip{display:inline-flex;align-items:center;gap:4px;cursor:pointer;border:1px solid var(--line);border-radius:7px;padding:1px 6px;font-size:11.5px;white-space:nowrap;background:#fff;font-variant-numeric:tabular-nums}
+.lchip input{width:12px;height:12px;accent-color:var(--accent);margin:0;cursor:pointer}
+.lchip.on{background:var(--greenbg);border-color:#7cc492;font-weight:600}
 .slipline.excl{opacity:.65}
 .slipline .lose{color:var(--red);text-decoration:line-through}
 .slipnote{font-size:11px;color:var(--muted);margin-top:7px;line-height:1.45}
@@ -119,7 +136,7 @@ td input{width:56px;padding:3px 5px;border:1px solid var(--line);border-radius:6
 .note{font-size:11px;color:#444;margin-top:7px;line-height:1.4}
 footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
 .disclaim{max-width:780px;margin:0 auto}
-@media(max-width:860px){.layout{flex-direction:column;align-items:stretch}.sidebar{width:auto;min-width:0;height:auto;position:static;border-right:none;border-bottom:1px solid var(--line)}.sidebar #fixtures{max-height:42vh;overflow-y:auto}.main{width:auto;flex:1 1 auto;min-width:0;padding:14px 12px}header{padding:10px 14px;gap:9px}.brand-txt .b1{font-size:16px}.brand-txt .b2{letter-spacing:2px}.comp-select{font-size:12px;padding:5px 8px;max-width:100%}.rec{font-size:14px;padding:10px 12px}.summary .srow{gap:10px}th,td{padding:4px 4px;font-size:11px}td input{width:46px}.betpick{flex-wrap:wrap;gap:4px 8px}.betpick .bl{flex:1 0 100%}.betpick .bs{font-size:11px}.slipline{flex-wrap:wrap;gap:3px 8px}.slipline .sg{flex:1 0 100%}.slipline .sb{flex:1 0 60%}}
+@media(max-width:860px){.layout{flex-direction:column;align-items:stretch}.sidebar{width:auto;min-width:0;height:auto;position:static;border-right:none;border-bottom:1px solid var(--line)}.sidebar #fixtures{max-height:42vh;overflow-y:auto}.main{width:auto;flex:1 1 auto;min-width:0;padding:14px 12px}header{padding:10px 14px;gap:9px}.brand-txt .b1{font-size:16px}.brand-txt .b2{letter-spacing:2px}.comp-select{font-size:12px;padding:5px 8px;max-width:100%}.rec{font-size:14px;padding:10px 12px}.summary .srow{gap:10px}th,td{padding:4px 4px;font-size:11px}td input{width:46px}.betpick{flex-wrap:wrap;gap:4px 8px}.betpick .bl{flex:1 0 100%}.betpick .bs{font-size:11px}.slipline{flex-wrap:wrap;gap:3px 8px}.slipline .sg{flex:1 0 100%}.slipline .sb{flex:1 0 60%}.lotline{flex-wrap:wrap;gap:2px 12px}.lotline .lg{flex:1 0 100%}.lotline .lps{gap:10px}}
 </style>
 </head>
 <body>
@@ -162,6 +179,7 @@ footer{padding:16px 20px;color:var(--muted);font-size:11px;text-align:center}
           <li><b>Insurance</b> = the favourite via double chance: lower payout, much lower risk.</li>
           <li><b>Enter book odds</b> in any market row (decimal) to get its fair price, <b>EV%</b> and a stake. Only the 1X2 comes pre-filled; type the others (handicap, totals, BTTS) to evaluate them.</li>
           <li><b>Controls:</b> Bankroll scales stakes · Kelly fraction sets aggressiveness · <b>Stake caution</b> sizes bets off a probability shaded toward the market (0 = size at the market, safest; 1 = size at your full model) so a model-only edge can't over-bet the bankroll · Bet mode toggles "favourite + insurance" vs "value bets only".</li>
+          <li><b>Stage selector</b> (top bar) switches between the group stage and each knockout round. On knockout cards a <b>To advance</b> line shows each team's chance of progressing — that one includes extra time and penalties (ET modelled as ~a third of a match, shootout ~50/50). Every <i>betting</i> market below it (1X2, totals, BTTS, handicap, correct score) settles on 90 minutes and is unaffected by ET/penalties.</li>
         </ol>
         <div class="gwarn">The bookmaker margin is in every price — this manages process and variance, it does <b>not</b> manufacture an edge. Probability/strategy tool, <b>not</b> betting advice.</div>
       </div>
@@ -186,6 +204,8 @@ function tau(x,y,l,m,rho){if(x===0&&y===0)return 1-l*m*rho;if(x===0&&y===1)retur
 function scoreMatrix(lh,la,rho,MAX=10){let m=[],t=0;for(let h=0;h<=MAX;h++){m[h]=[];for(let a=0;a<=MAX;a++){let p=pois(h,lh)*pois(a,la)*tau(h,a,lh,la,rho);m[h][a]=p;t+=p;}}for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++)m[h][a]/=t;return m;}
 function probs(m){let home=0,draw=0,away=0,btts=0,MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++){let p=m[h][a];if(h>a)home+=p;else if(h===a)draw+=p;else away+=p;if(h>=1&&a>=1)btts+=p;}return{home,draw,away,btts};}
 function topScores(m,n=5){let A=[],MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++)A.push([h,a,m[h][a]]);A.sort((x,y)=>y[2]-x[2]);return A.slice(0,n);}
+function topTotals(m,n=2){let MAX=m.length-1,t={};for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++){let k=h+a;t[k]=(t[k]||0)+m[h][a];}return Object.entries(t).map(([k,p])=>[+k,p]).sort((x,y)=>y[1]-x[1]).slice(0,n);}
+function topMargin(m){let MAX=m.length-1,t={};for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++){let dd=h-a;t[dd]=(t[dd]||0)+m[h][a];}return Object.entries(t).map(([d,p])=>[+d,p]).sort((x,y)=>y[1]-x[1])[0];}
 function devig(o){let raw=o.map(x=>1/x);const fg=c=>raw.map(r=>r/(c+r-c*r));let lo=.5,hi=5;for(let i=0;i<200;i++){let c=(lo+hi)/2,s=fg(c).reduce((a,b)=>a+b,0);if(s>1)lo=c;else hi=c;if(Math.abs(s-1)<1e-10)break;}let f=fg((lo+hi)/2),s=f.reduce((a,b)=>a+b,0);return f.map(x=>x/s);}
 function ah(m,side,line){let win=0,push=0,loss=0,MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++){let p=m[h][a];let d=(side==="home"?h-a:a-h)+line;if(d>1e-9)win+=p;else if(Math.abs(d)<1e-9)push+=p;else loss+=p;}return{win,push,loss};}
 function ou(m,line){let over=0,MAX=m.length-1;for(let h=0;h<=MAX;h++)for(let a=0;a<=MAX;a++)if(h+a>line)over+=m[h][a];return over;}
@@ -195,7 +215,7 @@ const RESULTMK=new Set(["H","D","A","DNBH","DNBA","DC1X","DCX2"]); // result mar
 function gauss(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 function erf(x){let s=x<0?-1:1;x=Math.abs(x);let t=1/(1+0.3275911*x);let y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
 function normCdf(x){return 0.5*(1+erf(x/Math.SQRT2));}
-let pstdCache={};
+let pstdCache={}, lotCache={};
 function pstdFor(f){let key=fkey(f);if(pstdCache[key])return pstdCache[key];
   let se=f.xgse||0,K=60,rho=DATA.model.rho,sums={},sq={};
   if(se>0){for(let s=0;s<K;s++){let l=Math.exp(Math.log(f.home_xg)+se*gauss()),m=Math.exp(Math.log(f.away_xg)+se*gauss());
@@ -364,6 +384,18 @@ function betRow(b){
     `<span class="bs">${b.stake.toFixed(1)}u &rarr; ${(b.stake*b.od).toFixed(1)}u</span>${ev}</label>`;
 }
 
+/* advancement probability (knockout only): win in 90 + share of draws won in extra time + shootout.
+   ET modelled as ~1/3 of a match more expected goals; the shootout is a ~coin flip (PEN). */
+const PEN=0.5;
+function advanceProbs(f,c){
+  let rho=DATA.model.rho;
+  let pe=probs(scoreMatrix(c.lam/3,c.mu/3,rho)), P=c.P;
+  let ah=P.home + P.draw*(pe.home + pe.draw*PEN);
+  let aa=P.away + P.draw*(pe.away + pe.draw*PEN);
+  let s=ah+aa||1; return [ah/s, aa/s];
+}
+function isKO(f){return f.stage && f.stage!=="Group stage";}
+
 /* ---------- card ---------- */
 function gameCard(f){
   const c=calc(f),P=c.P,rows=marketRows(f,c);
@@ -387,8 +419,10 @@ function gameCard(f){
   let anchorNote = c.anchored
     ? `model ${(c.pm.home*100).toFixed(0)}/${(c.pm.draw*100).toFixed(0)}/${(c.pm.away*100).toFixed(0)} &rarr; anchored ${(P.home*100).toFixed(0)}/${(P.draw*100).toFixed(0)}/${(P.away*100).toFixed(0)} (trust ${trust})`
     : `pure model (no market odds) ${(P.home*100).toFixed(0)}/${(P.draw*100).toFixed(0)}/${(P.away*100).toFixed(0)}`;
+  let adv=isKO(f)?advanceProbs(f,c):null;
   return `<div class="game"><h3>${f.home} <span style="color:var(--muted)">vs</span> ${f.away}</h3>
     <div class="sub">${dd} · ${f.venue||''} ${f.neutral?'':'· <span style="color:var(--accent)">host</span>'} · xG ${c.lam.toFixed(2)}–${c.mu.toFixed(2)} · ${anchorNote}</div>
+    ${adv?`<div class="advline"><span class="advlabel">To advance</span> <b>${f.home} ${(adv[0]*100).toFixed(0)}%</b> &middot; <b>${f.away} ${(adv[1]*100).toFixed(0)}%</b> <span class="advnote">incl. extra time + penalties (90-min markets below are unaffected)</span></div>`:''}
     <div class="rec ${recClass}"><span class="reclabel">Recommended bet — tick to add to slip</span>${rec}</div>
     <div class="ins"><span class="reclabel">Saver · lower-variance pick</span>${ins}</div>
     <div class="datahdr">Markets — model-priced (enter book odds for edge)</div>
@@ -397,8 +431,26 @@ function gameCard(f){
   </div>`;
 }
 
+/* high-margin "lottery" bets (opt-in): top scorelines, exact totals, winning margin. */
+function lotteryBets(f){let k=fkey(f); if(lotCache[k])return lotCache[k];
+  let c=calc(f),cs=f.cs_odds||{},gl=`${f.home} v ${f.away}`,st=2*getParams().unit,b=[];
+  topScores(c.M,3).forEach(([h,a,p])=>{let key=`${h}-${a}`,od=cs[key],has=od!=null;
+    b.push({id:`${k}|cs|${key}`,game:gl,date:f.date,kind:'cs',mkey:key,label:`${f.home} ${h}‑${a} ${f.away}`,
+      short:`${h}‑${a} ${(p*100).toFixed(0)}%${has?` @${od}`:''}`,od:has?od:(p>0?1/p:99),p,ev:has?(p*od-1):0,stake:st,fairOnly:!has});});
+  topTotals(c.M,2).forEach(([tk,p])=>{b.push({id:`${k}|tot|${tk}`,game:gl,date:f.date,kind:'tot',mkey:`ET${tk}`,
+    label:`Exactly ${tk} goal${tk==1?'':'s'}`,short:`${tk} gls ${(p*100).toFixed(0)}%`,od:p>0?1/p:99,p,ev:0,stake:st,fairOnly:true});});
+  let mg=topMargin(c.M),dd=mg[0],pm=mg[1],ml=dd>0?`${f.home} by ${dd}`:dd<0?`${f.away} by ${-dd}`:"Draw";
+  b.push({id:`${k}|mg|${dd}`,game:gl,date:f.date,kind:'mg',mkey:`MG${dd}`,label:ml,short:`${ml} ${(pm*100).toFixed(0)}%`,od:pm>0?1/pm:99,p:pm,ev:0,stake:st,fairOnly:true});
+  lotCache[k]=b; return b;}
+function settleExact(b,h,a){
+  if(b.kind==='cs'){let p=b.mkey.split('-');return h===+p[0]&&a===+p[1];}
+  if(b.kind==='tot')return (h+a)===+b.mkey.slice(2);
+  if(b.kind==='mg')return (h-a)===+b.mkey.slice(2);
+  return false;}
+
 /* ---------- render ---------- */
 function render(){
+  lotCache={};
   trust=parseFloat($("#trust").value); if(isNaN(trust))trust=0.3;
   stakeW=parseFloat($("#stakew").value); if(isNaN(stakeW))stakeW=0.5;
   $("#kfrac").disabled=false; $("#kfrac").style.opacity=1;
@@ -410,17 +462,21 @@ function render(){
   let nEdge=0; sel.forEach(f=>{let c=calc(f),rows=marketRows(f,c),pstd=pstdFor(f);rows.forEach(r=>{if(r.sec||r.cs||RESULTMK.has(r.key))return;let e=rowEval(f,r);if(e.od==null)return;let evM=e.ps*e.od-1,es=stakeW*(pstd[r.key]||0)*e.od,pp=es>1e-6?normCdf(evM/es):(evM>0?1:0);if(evM>=thr&&pp>=CONF)nEdge++;});});
   let items=[],sStake=0,sEV=0,sPot=0,anyExcl=false;
   sel.forEach(f=>{
-    let bets=gameBets(f).filter(b=>slip.has(b.id));
-    let csB=bets.filter(b=>b.id.includes("|cs|"));
-    let csWin=csB.length? csB.reduce((m,b)=>b.od<m.od?b:m,csB[0]).id : null; // lowest-priced score = assumed winner
-    bets.forEach(b=>{let isCS=b.id.includes("|cs|"),scenWin=!isCS||b.id===csWin;
-      sStake+=b.stake; sEV+=b.stake*b.ev; if(scenWin)sPot+=b.stake*b.od;       // EV is exact (linearity); only the win-scenario excludes losers
-      if(isCS&&!scenWin)anyExcl=true;
-      items.push(Object.assign({scenLose:isCS&&!scenWin},b));});
+    gameBets(f).forEach(b=>{ if(!slip.has(b.id))return;             // value + saver: each assumed to win
+      sStake+=b.stake; sEV+=b.stake*b.ev; sPot+=b.stake*b.od; items.push(Object.assign({scenLose:false},b)); });
+    let lot=lotteryBets(f).filter(b=>slip.has(b.id));               // lottery: within each market only the most-likely selected can win
+    ["cs","tot","mg"].forEach(kind=>{let grp=lot.filter(b=>b.kind===kind); if(!grp.length)return;
+      let win=grp.reduce((m,b)=>b.p>m.p?b:m,grp[0]).id;
+      grp.forEach(b=>{sStake+=b.stake; sEV+=b.stake*b.ev; let w=b.id===win; if(w)sPot+=b.stake*b.od; else anyExcl=true;
+        items.push(Object.assign({scenLose:!w},b));});});
   });
   let roi=sStake>0?sEV/sStake*100:0;
-  let list=items.length? items.map(b=>`<div class="slipline${b.scenLose?' excl':''}"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${b.scenLose?'<span class="lose">0u</span>':(b.stake*b.od).toFixed(1)+'u'}</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")+(anyExcl?`<div class="slipnote">Correct scores in the same match can't all win — the “Return if win” figure counts only the shortest-priced selected score per match; the others are still staked but lose.</div>`:"")
+  let list=items.length? items.map(b=>`<div class="slipline${b.scenLose?' excl':''}"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${b.scenLose?'<span class="lose">0u</span>':(b.stake*b.od).toFixed(1)+'u'}</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")+(anyExcl?`<div class="slipnote">Within each market (scorelines, totals, margins) only the most-likely selected outcome can win — multiple picks in the same market are mutually exclusive, so the others are staked but shown losing in the “Return if win” figure.</div>`:"")
      : `<div class="slipempty">No bets ticked yet — tick a recommended or saver bet on any game card to build your slip.</div>`;
+  let lottery = sel.map(f=>{let bets=lotteryBets(f);
+    let chip=b=>`<label class="lchip${slip.has(b.id)?' on':''}" title="${b.label} · ${b.fairOnly?'model-fair '+b.od.toFixed(2):'@ '+b.od}"><input type="checkbox" class="betchk" data-id="${b.id}" ${slip.has(b.id)?'checked':''}>${b.short}</label>`;
+    let grp=(tag,kind)=>`<span class="lgrp"><span class="ltag">${tag}</span>${bets.filter(b=>b.kind===kind).map(chip).join("")}</span>`;
+    return `<div class="lotline"><span class="lg">${f.home} v ${f.away}</span><span class="lps">${grp('scores','cs')}${grp('total goals','tot')}${grp('margin','mg')}</span></div>`;}).join("");
   $("#summary").innerHTML=`<div class="srow">
     <div><div class="k">Games</div><div class="v">${sel.length}</div></div>
     <div><div class="k">Bets in slip</div><div class="v">${items.length}</div></div>
@@ -428,7 +484,7 @@ function render(){
     <div title="Market-anchored probability-weighted profit across the ticked bets. Negative = paying the margin."><div class="k">Exp. profit</div><div class="v" style="color:${sEV>=0?'var(--green)':'var(--red)'}">${sEV>=0?'+':''}${sEV.toFixed(1)}<span class="u"> u</span> <span class="roi">${roi>=0?'+':''}${roi.toFixed(1)}%</span></div></div>
     <div title="Payout assuming your bets land. Correct scores in the same match are mutually exclusive, so only the shortest-priced selected score per match is counted as winning."><div class="k">Return if win</div><div class="v">${sPot.toFixed(1)}<span class="u"> u</span></div></div>
     <div><div class="k">Value edges</div><div class="v" style="color:var(--green)">${nEdge}</div></div>
-  </div>${sel.length?`<div class="slip"><div class="k" style="margin-bottom:4px">Your slip</div>${list}</div>`:''}`;
+  </div>${sel.length?`<div class="slip"><div class="k" style="margin-bottom:4px">Your slip</div>${list}</div>`:''}${sel.length?`<div class="lottery"><div class="k" style="margin-bottom:4px">Most-likely scorelines, totals &amp; margins <span class="lottlbl">— tick to add to slip (high-margin lottery; correct-score book price shown where available)</span></div>${lottery}</div>`:''}`;
   document.querySelectorAll(".mo").forEach(inp=>inp.addEventListener("change",e=>{
     let k=e.target.dataset.k,m=e.target.dataset.m,v=num(e.target.value);
     mOdds[k]=mOdds[k]||{}; if(v==null)delete mOdds[k][m]; else mOdds[k][m]=v; save(); render();}));
