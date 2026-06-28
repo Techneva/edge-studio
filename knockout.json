@@ -1,0 +1,27 @@
+{
+ "order": ["Group stage", "Round of 32", "Round of 16", "Quarter-finals", "Semi-finals", "Final"],
+ "rounds": {
+  "Round of 32": [
+   {"home": "South Africa", "away": "Canada", "date": "2026-06-28", "venue": "Inglewood, United States", "neutral": true},
+   {"home": "Brazil", "away": "Japan", "date": "2026-06-29", "venue": "Houston, United States", "neutral": true},
+   {"home": "Germany", "away": "Paraguay", "date": "2026-06-29", "venue": "Foxborough, United States", "neutral": true},
+   {"home": "Netherlands", "away": "Morocco", "date": "2026-06-29", "venue": "Monterrey, Mexico", "neutral": true},
+   {"home": "Ivory Coast", "away": "Norway", "date": "2026-06-30", "venue": "Arlington, United States", "neutral": true},
+   {"home": "France", "away": "Sweden", "date": "2026-06-30", "venue": "East Rutherford, United States", "neutral": true},
+   {"home": "Mexico", "away": "Ecuador", "date": "2026-06-30", "venue": "Mexico City, Mexico", "neutral": false},
+   {"home": "England", "away": "DR Congo", "date": "2026-07-01", "venue": "Atlanta, United States", "neutral": true},
+   {"home": "Belgium", "away": "Senegal", "date": "2026-07-01", "venue": "Seattle, United States", "neutral": true},
+   {"home": "United States", "away": "Bosnia and Herzegovina", "date": "2026-07-01", "venue": "Santa Clara, United States", "neutral": false},
+   {"home": "Spain", "away": "Austria", "date": "2026-07-02", "venue": "Inglewood, United States", "neutral": true},
+   {"home": "Portugal", "away": "Croatia", "date": "2026-07-02", "venue": "Toronto, Canada", "neutral": true},
+   {"home": "Switzerland", "away": "Algeria", "date": "2026-07-02", "venue": "Vancouver, Canada", "neutral": true},
+   {"home": "Australia", "away": "Egypt", "date": "2026-07-03", "venue": "Arlington, United States", "neutral": true},
+   {"home": "Argentina", "away": "Cape Verde", "date": "2026-07-03", "venue": "Miami Gardens, United States", "neutral": true},
+   {"home": "Colombia", "away": "Ghana", "date": "2026-07-03", "venue": "Kansas City, United States", "neutral": true}
+  ],
+  "Round of 16": [],
+  "Quarter-finals": [],
+  "Semi-finals": [],
+  "Final": []
+ }
+}

@@ -167,5 +167,99 @@
   "DC1X": 1.17,
   "DCX2": 2.1,
   "AHH-0.5": 2.15
+ },
+ "South Africa|Canada": {
+  "O2.5": 2.1,
+  "U2.5": 1.67
+ },
+ "Brazil|Japan": {
+  "O2.5": 2.05,
+  "U2.5": 1.77,
+  "BTTSY": 1.95,
+  "BTTSN": 1.83
+ },
+ "Germany|Paraguay": {
+  "O2.5": 1.71,
+  "U2.5": 2.15,
+  "BTTSY": 2.0,
+  "BTTSN": 1.77
+ },
+ "Netherlands|Morocco": {
+  "O2.5": 2.25,
+  "U2.5": 1.65,
+  "BTTSY": 1.95,
+  "BTTSN": 1.83
+ },
+ "Ivory Coast|Norway": {
+  "O2.5": 1.95,
+  "U2.5": 1.87,
+  "BTTSY": 1.74,
+  "BTTSN": 2.05
+ },
+ "France|Sweden": {
+  "O2.5": 1.57,
+  "U2.5": 2.4,
+  "BTTSY": 2.0,
+  "BTTSN": 1.8
+ },
+ "Mexico|Ecuador": {
+  "O1.5": 1.59,
+  "U1.5": 2.35,
+  "BTTSY": 2.2,
+  "BTTSN": 1.65
+ },
+ "England|DR Congo": {
+  "O2.5": 1.87,
+  "U2.5": 1.95,
+  "BTTSY": 2.55,
+  "BTTSN": 1.5
+ },
+ "Belgium|Senegal": {
+  "O2.5": 2.3,
+  "U2.5": 1.63,
+  "BTTSY": 2.0,
+  "BTTSN": 1.8
+ },
+ "United States|Bosnia and Herzegovina": {
+  "O2.5": 1.8,
+  "U2.5": 2.0,
+  "BTTSY": 2.1,
+  "BTTSN": 1.71
+ },
+ "Spain|Austria": {
+  "O2.5": 1.91,
+  "U2.5": 1.87,
+  "BTTSY": 2.75,
+  "BTTSN": 1.44
+ },
+ "Portugal|Croatia": {
+  "O2.5": 2.15,
+  "U2.5": 1.69,
+  "BTTSY": 1.95,
+  "BTTSN": 1.83
+ },
+ "Switzerland|Algeria": {
+  "O2.5": 2.0,
+  "U2.5": 1.8,
+  "BTTSY": 1.8,
+  "BTTSN": 1.95
+ },
+ "Australia|Egypt": {
+  "O1.5": 1.59,
+  "U1.5": 2.4,
+  "BTTSY": 2.15,
+  "BTTSN": 1.67
+ },
+ "Argentina|Cape Verde": {
+  "O2.5": 1.61,
+  "U2.5": 2.35,
+  "BTTSY": 3.0,
+  "BTTSN": 1.4
+ },
+ "Colombia|Ghana": {
+  "O2.5": 2.3,
+  "U2.5": 1.63,
+  "BTTSY": 2.3,
+  "BTTSN": 1.61
  }
 }
