@@ -433,18 +433,21 @@ function gameCard(f){
 
 /* high-margin "lottery" bets (opt-in): top scorelines, exact totals, winning margin. */
 function lotteryBets(f){let k=fkey(f); if(lotCache[k])return lotCache[k];
-  let c=calc(f),cs=f.cs_odds||{},gl=`${f.home} v ${f.away}`,st=2*getParams().unit,b=[];
+  let c=calc(f),cs=f.cs_odds||{},rows=marketRows(f,c),rk={},gl=`${f.home} v ${f.away}`,st=2*getParams().unit,b=[];
+  rows.forEach(r=>{if(!r.sec)rk[r.key]=r;});
   topScores(c.M,3).forEach(([h,a,p])=>{let key=`${h}-${a}`,od=cs[key],has=od!=null;
     b.push({id:`${k}|cs|${key}`,game:gl,date:f.date,kind:'cs',mkey:key,label:`${f.home} ${h}‑${a} ${f.away}`,
       short:`${h}‑${a} ${(p*100).toFixed(0)}%${has?` @${od}`:''}`,od:has?od:(p>0?1/p:99),p,ev:has?(p*od-1):0,stake:st,fairOnly:!has});});
-  topTotals(c.M,2).forEach(([tk,p])=>{b.push({id:`${k}|tot|${tk}`,game:gl,date:f.date,kind:'tot',mkey:`ET${tk}`,
-    label:`Exactly ${tk} goal${tk==1?'':'s'}`,short:`${tk} gls ${(p*100).toFixed(0)}%`,od:p>0?1/p:99,p,ev:0,stake:st,fairOnly:true});});
+  [1.5,2.5,3.5].forEach(L=>{let pov=ou(c.M,L),over=pov>=0.5,p=over?pov:1-pov,key=(over?"O":"U")+L,
+    r=rk[key],e=r?rowEval(f,r):null,has=!!(e&&e.od!=null),od=has?e.od:(p>0?1/p:99),ev=has?e.ev:0;
+    b.push({id:`${k}|ou|${key}`,game:gl,date:f.date,kind:'ou',mkey:key,label:`${over?'Over':'Under'} ${L} goals`,
+      short:`${over?'O':'U'}${L} ${(p*100).toFixed(0)}%${has?` @${od}`:''}`,od,p,ev,stake:st,fairOnly:!has});});
   let mg=topMargin(c.M),dd=mg[0],pm=mg[1],ml=dd>0?`${f.home} by ${dd}`:dd<0?`${f.away} by ${-dd}`:"Draw";
   b.push({id:`${k}|mg|${dd}`,game:gl,date:f.date,kind:'mg',mkey:`MG${dd}`,label:ml,short:`${ml} ${(pm*100).toFixed(0)}%`,od:pm>0?1/pm:99,p:pm,ev:0,stake:st,fairOnly:true});
   lotCache[k]=b; return b;}
 function settleExact(b,h,a){
   if(b.kind==='cs'){let p=b.mkey.split('-');return h===+p[0]&&a===+p[1];}
-  if(b.kind==='tot')return (h+a)===+b.mkey.slice(2);
+  if(b.kind==='ou'){let L=+b.mkey.slice(1);return b.mkey[0]==='O'?(h+a)>L:(h+a)<L;}
   if(b.kind==='mg')return (h-a)===+b.mkey.slice(2);
   return false;}
 
@@ -464,19 +467,20 @@ function render(){
   sel.forEach(f=>{
     gameBets(f).forEach(b=>{ if(!slip.has(b.id))return;             // value + saver: each assumed to win
       sStake+=b.stake; sEV+=b.stake*b.ev; sPot+=b.stake*b.od; items.push(Object.assign({scenLose:false},b)); });
-    let lot=lotteryBets(f).filter(b=>slip.has(b.id));               // lottery: within each market only the most-likely selected can win
-    ["cs","tot","mg"].forEach(kind=>{let grp=lot.filter(b=>b.kind===kind); if(!grp.length)return;
-      let win=grp.reduce((m,b)=>b.p>m.p?b:m,grp[0]).id;
-      grp.forEach(b=>{sStake+=b.stake; sEV+=b.stake*b.ev; let w=b.id===win; if(w)sPot+=b.stake*b.od; else anyExcl=true;
-        items.push(Object.assign({scenLose:!w},b));});});
+    let lb=lotteryBets(f).filter(b=>slip.has(b.id));
+    let csg=lb.filter(b=>b.kind==='cs'), csWin=csg.length?csg.reduce((m,b)=>b.p>m.p?b:m,csg[0]).id:null; // correct scores are mutually exclusive
+    lb.forEach(b=>{ sStake+=b.stake; sEV+=b.stake*b.ev;
+      let w = b.kind==='cs' ? (b.id===csWin) : true;          // over/under & margin each land on their own; only the top tied score wins
+      if(w)sPot+=b.stake*b.od; else anyExcl=true;
+      items.push(Object.assign({scenLose:!w},b)); });
   });
   let roi=sStake>0?sEV/sStake*100:0;
-  let list=items.length? items.map(b=>`<div class="slipline${b.scenLose?' excl':''}"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${b.scenLose?'<span class="lose">0u</span>':(b.stake*b.od).toFixed(1)+'u'}</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")+(anyExcl?`<div class="slipnote">Within each market (scorelines, totals, margins) only the most-likely selected outcome can win — multiple picks in the same market are mutually exclusive, so the others are staked but shown losing in the “Return if win” figure.</div>`:"")
+  let list=items.length? items.map(b=>`<div class="slipline${b.scenLose?' excl':''}"><span class="sg">${b.game}</span><span class="sb">${b.label} <span class="so">${b.fairOnly?'fair '+b.od.toFixed(2):'@ '+b.od}</span></span><span class="sv">${b.stake.toFixed(1)}u &rarr; ${b.scenLose?'<span class="lose">0u</span>':(b.stake*b.od).toFixed(1)+'u'}</span><span class="se ${b.fairOnly?'muted':(b.ev>=0?'':'neg')}">${b.fairOnly?'—':(b.ev>=0?'+':'')+(b.ev*100).toFixed(1)+'%'}</span></div>`).join("")+(anyExcl?`<div class="slipnote">In “Return if win”, over/under and winning-margin picks each count as landing; correct scores are mutually exclusive, so if you tick more than one for a match only the most-likely counts and the rest are staked but shown losing.</div>`:"")
      : `<div class="slipempty">No bets ticked yet — tick a recommended or saver bet on any game card to build your slip.</div>`;
   let lottery = sel.map(f=>{let bets=lotteryBets(f);
     let chip=b=>`<label class="lchip${slip.has(b.id)?' on':''}" title="${b.label} · ${b.fairOnly?'model-fair '+b.od.toFixed(2):'@ '+b.od}"><input type="checkbox" class="betchk" data-id="${b.id}" ${slip.has(b.id)?'checked':''}>${b.short}</label>`;
     let grp=(tag,kind)=>`<span class="lgrp"><span class="ltag">${tag}</span>${bets.filter(b=>b.kind===kind).map(chip).join("")}</span>`;
-    return `<div class="lotline"><span class="lg">${f.home} v ${f.away}</span><span class="lps">${grp('scores','cs')}${grp('total goals','tot')}${grp('margin','mg')}</span></div>`;}).join("");
+    return `<div class="lotline"><span class="lg">${f.home} v ${f.away}</span><span class="lps">${grp('scores','cs')}${grp('over / under','ou')}${grp('margin','mg')}</span></div>`;}).join("");
   $("#summary").innerHTML=`<div class="srow">
     <div><div class="k">Games</div><div class="v">${sel.length}</div></div>
     <div><div class="k">Bets in slip</div><div class="v">${items.length}</div></div>

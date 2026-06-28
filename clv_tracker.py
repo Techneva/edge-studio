@@ -54,12 +54,14 @@ LEDGER = [
  dict(date="2026-06-24", game="Scotland vs Brazil",              side="away", taken=(8.00,5.00,1.364), close=(8.00,5.00,1.364), stake=10, result="W"),  # BRA 3-0
  dict(date="2026-06-24", game="South Africa vs South Korea",     side="away", taken=(5.25,3.80,1.649), close=(5.25,3.80,1.649), stake=10, result="L"),  # RSA 1-0 (KOR lost)
  # --- Saturday Jun 27 (taken at near-kickoff close; ENG & CRO settled, others pending) ---
- dict(date="2026-06-27", game="Jordan vs Argentina",     side="away", taken=(17.0,7.50,1.143), close=(17.0,7.50,1.143), stake=10, result=None),
+ dict(date="2026-06-27", game="Jordan vs Argentina",     side="away", taken=(17.0,7.50,1.143), close=(17.0,7.50,1.143), stake=10, result="W"),  # ARG 3-1
  dict(date="2026-06-27", game="Panama vs England",       side="away", taken=(17.0,8.00,1.143), close=(17.0,8.00,1.143), stake=10, result="W"),  # ENG 2-0
- dict(date="2026-06-27", game="Colombia vs Portugal",    side="away", taken=(3.50,3.80,1.952), close=(3.50,3.80,1.952), stake=10, result=None),
- dict(date="2026-06-27", game="Algeria vs Austria",      side="away", taken=(4.20,2.15,2.90),  close=(4.20,2.15,2.90),  stake=10, result=None),
- dict(date="2026-06-27", game="DR Congo vs Uzbekistan",  side="home", taken=(1.714,4.20,5.25), close=(1.714,4.20,5.25), stake=10, result=None),
+ dict(date="2026-06-27", game="Colombia vs Portugal",    side="away", taken=(3.50,3.80,1.952), close=(3.50,3.80,1.952), stake=10, result="L"),  # 0-0 draw
+ dict(date="2026-06-27", game="Algeria vs Austria",      side="away", taken=(4.20,2.15,2.90),  close=(4.20,2.15,2.90),  stake=10, result="L"),  # 3-3 draw
+ dict(date="2026-06-27", game="DR Congo vs Uzbekistan",  side="home", taken=(1.714,4.20,5.25), close=(1.714,4.20,5.25), stake=10, result="W"),  # DRC 3-1
  dict(date="2026-06-27", game="Croatia vs Ghana",        side="home", taken=(1.769,3.10,5.90), close=(1.769,3.10,5.90), stake=10, result="W"),  # CRO 2-1
+ # --- Sunday Jun 28 (Round of 32; taken at near-kickoff close; pending) ---
+ dict(date="2026-06-28", game="South Africa vs Canada",  side="away", taken=(5.50,3.50,1.714), close=(5.50,3.50,1.714), stake=10, result=None),
 ]
 
 def fair_prob(three_way, side):
